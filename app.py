@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import signal
 import time
+import os
 
 from config import SETTINGS
 from ac_race_engineer.ai.client import OpenAIAssistantClient
@@ -30,7 +31,13 @@ def run() -> None:
     state = SessionState()
     queue = SpeechMessageQueue()
     speaker = Speaker(queue=queue, volume_multiplier=SETTINGS.voice_volume_multiplier)
-    ai_client = OpenAIAssistantClient(enabled=True)
+    
+    # Detectar si OpenAI está disponible (API key configurada)
+    openai_api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    ai_enabled = bool(openai_api_key)
+    if not ai_enabled:
+        print("[AI] ⚠️ OPENAI_API_KEY no configurada. Asistente desactivado.")
+    ai_client = OpenAIAssistantClient(enabled=ai_enabled)
 
     # Configurar control PTT si está habilitado
     controller: ControllerMonitor | None = None

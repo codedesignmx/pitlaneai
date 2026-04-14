@@ -22,11 +22,15 @@ class MicrophoneListener:
     - Pulsa el botón configurado → el asistente escucha un comando y responde.
     - Requiere ControllerMonitor inicializado con el control detectado.
 
-    Modo palabra clave (fallback automático):
+        Modo palabra clave:
     - Di 'Radio Check' para activar la escucha libre.
     - Di 'Cancelar Radio' para desactivarla.
     - Di 'Resetear hilo' para borrar el hilo conversacional.
     - Cualquier frase se manda al asistente de IA con contexto de sesión.
+
+        Nota:
+        - Si se pasa controller, el listener usa modo PTT estricto y NO entra
+            en modo palabra clave aunque el control tarde en inicializar.
     """
 
     def __init__(
@@ -65,14 +69,34 @@ class MicrophoneListener:
     # ------------------------------------------------------------------
 
     def _run(self) -> None:
-        if self._controller is not None and self._controller.available:
-            print("[MIC] Modo PTT activo. Mantén pulsado el botón para transmitir.")
-            self._run_ptt()
-        else:
-            with sr.Microphone() as source:
-                self._r.adjust_for_ambient_noise(source, duration=1)
-                print("[MIC] Modo palabra clave. Di 'Radio Check' para activar el asistente.")
-                self._run_keyword(source)
+        if self._controller is not None:
+            # Evita una carrera al arrancar: el monitor del control inicia en otro
+            # hilo y puede tardar un instante en marcarse como disponible.
+            init_deadline = time.time() + 2.0
+            while (
+                not self._controller.available
+                and not self._stop_event.is_set()
+                and time.time() < init_deadline
+            ):
+                time.sleep(0.05)
+
+            if self._controller.available:
+                print("[MIC] Modo PTT activo. Mantén pulsado el botón para transmitir.")
+                self._run_ptt()
+                return
+
+            print(
+                "[MIC] PTT habilitado pero no hay control disponible. "
+                "No se activará escucha por voz libre."
+            )
+            while not self._stop_event.is_set():
+                time.sleep(0.2)
+            return
+
+        with sr.Microphone() as source:
+            self._r.adjust_for_ambient_noise(source, duration=1)
+            print("[MIC] Modo palabra clave. Di 'Radio Check' para activar el asistente.")
+            self._run_keyword(source)
 
     def _run_ptt(self) -> None:
         """Graba mientras el botón está sostenido; procesa al soltar."""
@@ -185,6 +209,15 @@ class MicrophoneListener:
     def _handle_command(self, text: str) -> None:
         t = text.lower().strip()
 
+        # Detección de radio check - respuesta automática sin asistente
+        if "radio check" in t:
+            print("[MIC] Radio check detectado.")
+            self._speaker.speak("Loud and Clear")
+            if self._session_state is not None:
+                briefing = self._session_state.build_radio_briefing()
+                self._speaker.speak(briefing)
+            return
+
         if "cancelar radio" in t:
             if self._controller is not None and self._controller.available:
                 # En modo PTT no hay estado activo que cancelar
@@ -263,6 +296,17 @@ class MicrophoneListener:
         )
 
     def _send_to_assistant(self, text: str) -> None:
+        """Envía texto al asistente en un hilo separado (no-bloqueante)."""
+        # Lanzar en hilo daemon para no bloquear captura de micrófono
+        thread = threading.Thread(
+            target=self._ask_assistant_blocking,
+            args=(text,),
+            daemon=True,
+        )
+        thread.start()
+
+    def _ask_assistant_blocking(self, text: str) -> None:
+        """Ejecuta la llamada a OpenAI (bloqueante) en hilo separado."""
         # Anteponer contexto de sesion al mensaje del piloto
         if self._session_state is not None:
             context = build_practice_prompt(self._session_state)
@@ -274,7 +318,8 @@ class MicrophoneListener:
         try:
             response = self._ai_client.ask(full_text)
             if not response:
-                print("[AI] API no disponible o sin respuesta.")
+                print("[AI] ⚠️ Asistente no disponible. Configura OPENAI_API_KEY.")
+                self._speaker.speak("Asistente no disponible. Configura tu API key de OpenAI.")
                 return
             # Eliminar referencias internas como iris.py hace con filtrar_referencias
             clean = re.sub(r"【.*?】", "", response or "").strip()
