@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import re
 
 from ac_race_engineer.analysis.fuel import average_fuel_per_lap, estimate_laps_left
 from ac_race_engineer.analysis.pace import average_last_n, best_lap, last_lap
@@ -288,3 +289,111 @@ class SessionState:
         if self.last_collision_note:
             return base + f" Último contacto: {self.last_collision_note}." + damage_note
         return base + " Sin colisión reciente detectada." + damage_note
+
+    def build_objective_report(self) -> str:
+        """Reporte rápido de métricas objetivo en vivo."""
+        snap = self.last_snapshot
+        stats = self.get_stats()
+
+        if snap is None or not self.laps:
+            return "Sin datos de sesión todavía para análisis objetivo."
+
+        parts: list[str] = []
+
+        # Ritmo
+        if stats.best_lap_seconds:
+            parts.append(f"Mejor vuelta {speak_lap_time_spanish(stats.best_lap_seconds)}.")
+        if stats.avg_last_3_seconds:
+            parts.append(f"Promedio últimas 3 {speak_lap_time_spanish(stats.avg_last_3_seconds)}.")
+
+        # Consistencia
+        if len(self.laps) >= 3:
+            recent_times = [lap.lap_time_seconds for lap in self.laps[-3:]]
+            if all(30.0 <= t <= 600.0 for t in recent_times):
+                degradation = max(recent_times) - min(recent_times)
+                if degradation < 0.2:
+                    parts.append("Consistencia excelente.")
+                elif degradation < 0.5:
+                    parts.append("Consistencia buena.")
+
+        # Fuel
+        if stats.estimated_laps_left is not None:
+            parts.append(f"Combustible para {speak_laps_spanish(stats.estimated_laps_left)}.")
+
+        return " ".join(parts) if parts else "Datos insuficientes para análisis objetivo."
+
+    def build_objective_briefing(self, session_objectives: dict[str, dict[str, str]] | None = None) -> str:
+        """Briefing completo en pits: estado + objetivo + recomendación de setup.
+
+        Ideal al decir 'Radio Check' al inicio de sesión desde pits.
+        """
+        snap = self.last_snapshot
+        if snap is None:
+            return "Sin telemetría todavía."
+
+        session_type = snap.session_type
+        is_in_pit = snap.is_in_pit
+
+        # Parte 1: Info básica
+        where_label = "en pits" if is_in_pit else "en pista"
+        track_label = snap.track_name if snap.track_name and snap.track_name != "unknown" else "pista desconocida"
+        
+        session_name_map = {
+            "practice": "práctica",
+            "qualifying": "clasificación",
+            "race": "carrera",
+            "hotlap": "hotlap",
+            "time_attack": "time attack",
+            "drift": "drift",
+            "drag": "drag",
+            "unknown": "sesión desconocida",
+        }
+        session_label = session_name_map.get(session_type, "sesión desconocida")
+        
+        info_line = f"Estamos en {track_label}. Sesión {session_label}, estado {where_label}."
+        
+        # Parte 2: Ritmo (si lo hay)
+        stats = self.get_stats()
+        if not is_in_pit and stats.best_lap_seconds is not None:
+            pace_line = f"Mejor vuelta {speak_lap_time_spanish(stats.best_lap_seconds)}."
+        else:
+            pace_line = ""
+
+        # Parte 3: Objetivo según sesión
+        objective_line = ""
+        if session_objectives is not None:
+            obj_data = session_objectives.get(session_type, session_objectives.get("unknown", {}))
+            if obj_data:
+                goal = obj_data.get("goal", "")
+                target = obj_data.get("target_pace", "")
+                advice = obj_data.get("setup_advice", "")
+                target_voice = self._format_target_pace_for_voice(target)
+                objective_line = f"Objetivo {session_label}: {goal}. Ritmo objetivo {target_voice}. {advice}"
+        
+        # Parte 4: Fuel
+        if snap.fuel > 0:
+            fuel_line = f"Combustible actual {snap.fuel:.1f} litros."
+        else:
+            fuel_line = ""
+
+        parts = [p for p in [info_line, pace_line, objective_line, fuel_line] if p]
+        return " ".join(parts)
+
+    @staticmethod
+    def _format_target_pace_for_voice(target_pace: str) -> str:
+        """Convierte 1:45.000 en frase amigable para TTS en espanol."""
+        raw = (target_pace or "").strip()
+        if not raw:
+            return "no definido"
+
+        match = re.match(r"^(\d+):(\d{2})(?:\.(\d{1,3}))?$", raw)
+        if not match:
+            return raw
+
+        minutes = int(match.group(1))
+        seconds = int(match.group(2))
+        millis_raw = match.group(3) or "000"
+        millis = int(millis_raw.ljust(3, "0"))
+
+        minute_word = "minuto" if minutes == 1 else "minutos"
+        return f"{minutes} {minute_word} {seconds} segundos {millis:03d} milesimas"

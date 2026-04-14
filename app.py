@@ -8,6 +8,11 @@ from config import SETTINGS
 from ac_race_engineer.ai.client import OpenAIAssistantClient
 from ac_race_engineer.analysis.session_state import SessionState
 from ac_race_engineer.analysis.time_format import format_lap_time
+from ac_race_engineer.analysis.objective_engine import (
+    compute_race_pace,
+    compute_fuel_predictor,
+    build_objective_summary,
+)
 from ac_race_engineer.audio.controller import ControllerMonitor
 from ac_race_engineer.audio.microphone import MicrophoneListener
 from ac_race_engineer.audio.queue import SpeechMessageQueue
@@ -23,6 +28,7 @@ from ac_race_engineer.storage.results_summary import (
     load_latest_standings,
 )
 from ac_race_engineer.storage.logger import SessionLogger
+from ac_race_engineer.storage.session_profile import SessionProfile
 from ac_race_engineer.telemetry.ac_reader import AcSharedMemoryReader
 
 
@@ -59,6 +65,7 @@ def run() -> None:
         thresholds_by_session=SETTINGS.event_thresholds_by_session,
     )
     logger = SessionLogger(log_dir=SETTINGS.log_dir)
+    session_profile = SessionProfile(output_dir="session_logs")
 
     should_stop = False
 
@@ -108,11 +115,14 @@ def run() -> None:
                 if msg:
                     if event.name == "collision_contact":
                         state.register_collision_note(msg)
+                    print(f"[SPEAK] {msg}")
                     queue.push(msg)
 
             lap_record = state.update(snapshot)
             if lap_record is not None:
                 logger.log_lap(lap_record)
+                # Registrar en profile de sesión
+                session_profile.record_lap(lap_record, snapshot, setup_hash="default")
                 print(
                     f"[LAP] lap={lap_record.lap_number} time={format_lap_time(lap_record.lap_time_seconds)} "
                     f"fuel_used={lap_record.fuel_used:.3f}"
@@ -127,6 +137,7 @@ def run() -> None:
                     print(f"[EVENT] {event.name}: {event.payload}")
                     msg = build_event_message(event)
                     if msg:
+                        print(f"[SPEAK] {msg}")
                         queue.push(msg)
 
             now = time.time()
@@ -152,7 +163,7 @@ def run() -> None:
                     if standings_initialized:
                         updates = detect_standings_updates(last_standings, current_standings)
                         for update_msg in updates:
-                            print(f"[TIMING] {update_msg}")
+                            print(f"[SPEAK] {update_msg}")
                             queue.push(update_msg)
                     else:
                         print(f"[TIMING] feed activo con {len(current_standings)} pilotos")
@@ -171,6 +182,29 @@ def run() -> None:
                 ended_best_lap = state.get_stats().best_lap_seconds
 
             if pending_session_end_announce:
+                # Guardar profile de sesión
+                txt_path = session_profile.save_to_file()
+                json_path = session_profile.save_json_archive()
+                print(f"[PROFILE] Sesión guardada: {txt_path}")
+                print(f"[PROFILE] JSON archivado: {json_path}")
+                
+                # Computar métricas objetivo
+                stats = state.get_stats()
+                laps_valid = [s.lap_time for s in session_profile.snapshots if s.lap_time > 30.0]
+                race_metrics = compute_race_pace(laps_valid)
+                fuel_metrics = compute_fuel_predictor(
+                    avg_fuel_per_lap=stats.avg_fuel_per_lap,
+                    time_left_minutes=snapshot.session_time_left_seconds / 60.0 if snapshot else 0.0,
+                    avg_lap_time_seconds=race_metrics.race_pace_avg,
+                )
+                
+                # Resumen objetivo por voz
+                objective_msg = build_objective_summary(fuel_metrics)
+                if objective_msg and objective_msg != "Sin métricas objetivo aún.":
+                    print(f"[SPEAK] {objective_msg}")
+                    queue.push(objective_msg)
+                
+                # Resumen de standings (si aplica)
                 standings = load_latest_standings(SETTINGS.results_search_dirs)
                 end_msg = build_session_end_summary(
                     session_label=ended_session_type,
@@ -178,7 +212,7 @@ def run() -> None:
                     own_best_lap=ended_best_lap,
                     standings=standings,
                 )
-                print(f"[SESSION_END] {end_msg}")
+                print(f"[SPEAK] {end_msg}")
                 queue.push(end_msg)
                 pending_session_end_announce = False
 
@@ -215,7 +249,7 @@ def run() -> None:
                 else:
                     auto_msg = state.build_auto_feedback()
                 if auto_msg:
-                    print(f"[AUTO] {auto_msg}")
+                    print(f"[SPEAK] {auto_msg}")
                     queue.push(auto_msg)
                     last_auto_feedback = now
 

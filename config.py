@@ -54,6 +54,39 @@ class Settings:
     # Si no sabes cuál es, ejecuta:
     #   python -c "from ac_race_engineer.audio.controller import print_button_map; print_button_map()"
     ptt_button_index: int = 1
+    # --- Objetivos por sesión ---
+    session_objectives: dict[str, dict[str, str]] = field(
+        default_factory=lambda: {
+            "practice": {
+                "goal": "Búsqueda de ritmo y consistencia",
+                "target_pace": "1:45.000",
+                "target_laps": "10 vueltas",
+                "setup_advice": "Comienza con setup anterior o default. Ajusta presión si hay understeer/oversteer.",
+                "fuel_strategy": "Llena para 20-30 vueltas sin preocupación.",
+            },
+            "qualifying": {
+                "goal": "Maximizar una vuelta limpia",
+                "target_pace": "1:43.500",
+                "target_laps": "1 vuelta de push",
+                "setup_advice": "Asegúrate goma en ventana. Bias 58-60 para tracción.",
+                "fuel_strategy": "Mínimo requerido, enfocado en pico.",
+            },
+            "race": {
+                "goal": "Ritmo sostenible y gestión de fuel",
+                "target_pace": "1:45.000",
+                "target_laps": "Carrera completa",
+                "setup_advice": "Setup de carrera: presión estable, downforce medio, diferenciales conservadores.",
+                "fuel_strategy": "Calcula vueltas restantes × consumo promedio + 1 vuelta margen.",
+            },
+            "unknown": {
+                "goal": "Completar sesión",
+                "target_pace": "Ritmo confortable",
+                "target_laps": "Múltiples",
+                "setup_advice": "Default.",
+                "fuel_strategy": "Llena según necesidad.",
+            },
+        }
+    )
     log_dir: str = "logs"
     results_search_dirs: list[str] = field(
         default_factory=lambda: [

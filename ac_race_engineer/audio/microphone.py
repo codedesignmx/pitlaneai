@@ -6,6 +6,7 @@ import time
 
 import speech_recognition as sr
 
+from config import SETTINGS
 from ac_race_engineer.ai.client import OpenAIAssistantClient
 from ac_race_engineer.ai.prompt_builder import build_practice_prompt
 from ac_race_engineer.analysis.session_state import SessionState
@@ -47,6 +48,9 @@ class MicrophoneListener:
         self._activated = False
         self._stop_event = threading.Event()
         self._thread: threading.Thread | None = None
+        self._assistant_lock = threading.Lock()
+        self._assistant_request_counter = 0
+        self._assistant_ignore_before = 0
         self._r = sr.Recognizer()
         self._r.energy_threshold = 3000
 
@@ -206,74 +210,155 @@ class MicrophoneListener:
     # Manejo de comandos (igual a manejar_comando de iris.py)
     # ------------------------------------------------------------------
 
+    @staticmethod
+    def _is_radio_check_command(text: str) -> bool:
+        """Detecta radio check incluyendo variantes frecuentes de ASR."""
+        normalized = (text or "").lower().strip()
+        if "radio check" in normalized:
+            return True
+        # Variantes comunes que reconoce mal Google Speech en espanol.
+        return any(
+            token in normalized
+            for token in (
+                "radio chek",
+                "radio cheque",
+                "radio chec",
+                "radio sheck",
+                "radio shrek",
+            )
+        )
+
     def _handle_command(self, text: str) -> None:
         t = text.lower().strip()
 
         # Detección de radio check - respuesta automática sin asistente
-        if "radio check" in t:
+        if self._is_radio_check_command(t):
+            self._ignore_pending_assistant_responses()
             print("[MIC] Radio check detectado.")
+            print("[SPEAK] Loud and Clear")
             self._speaker.speak("Loud and Clear")
             if self._session_state is not None:
-                briefing = self._session_state.build_radio_briefing()
+                # Si estamos en pits, usar briefing objetivo completo
+                if self._session_state.last_snapshot and self._session_state.last_snapshot.is_in_pit:
+                    briefing = self._session_state.build_objective_briefing(
+                        session_objectives=SETTINGS.session_objectives
+                    )
+                else:
+                    briefing = self._session_state.build_radio_briefing()
+                print(f"[SPEAK] {briefing}")
                 self._speaker.speak(briefing)
             return
 
         if "cancelar radio" in t:
+            self._ignore_pending_assistant_responses()
             if self._controller is not None and self._controller.available:
                 # En modo PTT no hay estado activo que cancelar
                 return
             self._activated = False
             print("[MIC] Desactivando asistente.")
+            print("[SPEAK] Cancelando")
             self._speaker.speak("Cancelando")
             return
 
         if self._is_briefing_query(t):
+            self._ignore_pending_assistant_responses()
             if self._session_state is not None:
-                self._speaker.speak(self._session_state.build_radio_briefing())
+                briefing_msg = self._session_state.build_radio_briefing()
+                print(f"[SPEAK] {briefing_msg}")
+                self._speaker.speak(briefing_msg)
             return
 
         if "resetear hilo" in t or "reiniciar hilo" in t or "borrar memoria" in t:
+            self._ignore_pending_assistant_responses()
             self._ai_client.reset_thread()
-            self._speaker.speak("He creado una nueva conversacion. La memoria previa fue reiniciada.")
+            reset_msg = "He creado una nueva conversacion. La memoria previa fue reiniciada."
+            print(f"[SPEAK] {reset_msg}")
+            self._speaker.speak(reset_msg)
             return
 
         if "volumen" in t:
+            self._ignore_pending_assistant_responses()
             if "bajo" in t:
                 if self._speaker.set_volume_preset("bajo"):
+                    print("[SPEAK] Volumen bajo activado")
                     self._speaker.speak("Volumen bajo activado")
                 return
             if "medio" in t:
                 if self._speaker.set_volume_preset("medio"):
+                    print("[SPEAK] Volumen medio activado")
                     self._speaker.speak("Volumen medio activado")
                 return
             if "alto" in t:
                 if self._speaker.set_volume_preset("alto"):
+                    print("[SPEAK] Volumen alto activado")
                     self._speaker.speak("Volumen alto activado")
                 return
+            print("[SPEAK] Usa volumen bajo, medio o alto")
             self._speaker.speak("Usa volumen bajo, medio o alto")
             return
 
         if self._is_position_query(t):
+            self._ignore_pending_assistant_responses()
             if self._session_state is None:
-                self._speaker.speak("Sin telemetría todavía, no puedo confirmar posición.")
+                pos_msg = "Sin telemetría todavía, no puedo confirmar posición."
+                print(f"[SPEAK] {pos_msg}")
+                self._speaker.speak(pos_msg)
                 return
-            self._speaker.speak(self._session_state.build_position_report())
+            pos_report = self._session_state.build_position_report()
+            print(f"[SPEAK] {pos_report}")
+            self._speaker.speak(pos_report)
             return
 
         if self._is_car_status_query(t):
+            self._ignore_pending_assistant_responses()
             if self._session_state is None:
-                self._speaker.speak("Sin telemetría todavía para revisar estado del auto.")
+                status_msg = "Sin telemetría todavía para revisar estado del auto."
+                print(f"[SPEAK] {status_msg}")
+                self._speaker.speak(status_msg)
                 return
-            self._speaker.speak(self._session_state.build_car_status_report())
+            status_report = self._session_state.build_car_status_report()
+            print(f"[SPEAK] {status_report}")
+            self._speaker.speak(status_report)
+            return
+
+        if self._is_objective_query(t):
+            self._ignore_pending_assistant_responses()
+            if self._session_state is None:
+                obj_msg = "Sin datos de sesión todavía para análisis objetivo."
+                print(f"[SPEAK] {obj_msg}")
+                self._speaker.speak(obj_msg)
+                return
+            obj_report = self._session_state.build_objective_report()
+            print(f"[SPEAK] {obj_report}")
+            self._speaker.speak(obj_report)
+            return
+
+        if t.startswith("radio") and len(t.split()) <= 2:
+            self._ignore_pending_assistant_responses()
+            hint_msg = "Comando de radio no reconocido. Di radio check."
+            print(f"[SPEAK] {hint_msg}")
+            self._speaker.speak(hint_msg)
             return
 
         self._send_to_assistant(text)
+
+    def _ignore_pending_assistant_responses(self) -> None:
+        """Marca como descartables respuestas de IA enviadas antes del comando actual."""
+        with self._assistant_lock:
+            self._assistant_ignore_before = self._assistant_request_counter
 
     @staticmethod
     def _is_briefing_query(text: str) -> bool:
         return any(
             token in text
             for token in ("informe", "briefing", "situación general", "situacion general", "estado general")
+        )
+
+    @staticmethod
+    def _is_objective_query(text: str) -> bool:
+        return any(
+            token in text
+            for token in ("objetivo", "métricas", "metricas", "ritmo", "pace", "consumo", "fuel", "readiness", "listos")
         )
 
     @staticmethod
@@ -297,15 +382,19 @@ class MicrophoneListener:
 
     def _send_to_assistant(self, text: str) -> None:
         """Envía texto al asistente en un hilo separado (no-bloqueante)."""
+        with self._assistant_lock:
+            self._assistant_request_counter += 1
+            request_id = self._assistant_request_counter
+
         # Lanzar en hilo daemon para no bloquear captura de micrófono
         thread = threading.Thread(
             target=self._ask_assistant_blocking,
-            args=(text,),
+            args=(text, request_id),
             daemon=True,
         )
         thread.start()
 
-    def _ask_assistant_blocking(self, text: str) -> None:
+    def _ask_assistant_blocking(self, text: str, request_id: int) -> None:
         """Ejecuta la llamada a OpenAI (bloqueante) en hilo separado."""
         # Anteponer contexto de sesion al mensaje del piloto
         if self._session_state is not None:
@@ -319,12 +408,21 @@ class MicrophoneListener:
             response = self._ai_client.ask(full_text)
             if not response:
                 print("[AI] ⚠️ Asistente no disponible. Configura OPENAI_API_KEY.")
-                self._speaker.speak("Asistente no disponible. Configura tu API key de OpenAI.")
+                unavailable_msg = "Asistente no disponible. Configura tu API key de OpenAI."
+                print(f"[SPEAK] {unavailable_msg}")
+                self._speaker.speak(unavailable_msg)
                 return
             # Eliminar referencias internas como iris.py hace con filtrar_referencias
             clean = re.sub(r"【.*?】", "", response or "").strip()
-            print(f"[AI] Respuesta: {clean}")
+            with self._assistant_lock:
+                should_discard = request_id <= self._assistant_ignore_before
+            if should_discard:
+                print("[AI] Respuesta descartada por comando local más reciente.")
+                return
+            print(f"[SPEAK] {clean}")
             self._speaker.speak(clean)
         except Exception as exc:
             print(f"[AI] Error: {exc}")
-            self._speaker.speak("Hubo un error al comunicarse con el asistente.")
+            error_msg = "Hubo un error al comunicarse con el asistente."
+            print(f"[SPEAK] {error_msg}")
+            self._speaker.speak(error_msg)

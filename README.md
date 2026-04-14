@@ -37,7 +37,12 @@ python app.py
 - `Radio Check`
   - Activa el asistente.
   - Responde `Loud and Clear`.
-  - Da un briefing inicial (pista, sesion, estado, ritmo, combustible).
+  - **Si estás en pits:** Briefing objetivo completo
+    - Pista y sesión actual
+    - Mejor vuelta (si la hay)
+    - Objetivo de sesión (ritmo target, vueltas, consejo de setup)
+    - Combustible actual
+  - **Si estás en pista:** Briefing estándar (pista, sesión, ritmo, combustible)
 
 - `Cancelar Radio`
   - Desactiva el asistente de voz.
@@ -45,7 +50,20 @@ python app.py
 - `Que lugar vamos`
   - Responde posicion actual y tiempo segun la sesion (practica, qualy o carrera).
 
-### Conversacion / memoria
+- `Estado del auto` / `Estado del coche` / `Daños` / `Colisión`
+  - Reporta: velocidad actual, combustible, y última colisión detectada (si aplica).
+
+### Metricas objetivo (nuevo)
+
+- `Objetivo` / `Métricas` / `Ritmo` / `Pace` / `Consumo` / `Fuel` / `Readiness` / `Listos`
+  - Reporte rápido en vivo:
+    - Mejor vuelta y promedio últimas 3.
+    - Consistencia (excelente / buena).
+    - Combustible estimado para X vueltas.
+  - Ideal durante practica para evaluar setup y pace target.
+
+- `Informe` / `Briefing` / `Situación general`
+  - Mismo briefing que `Radio Check` (pista, sesión, ritmo, combustible, clima).
 
 - `Resetear hilo`
 - `Reiniciar hilo`
@@ -116,6 +134,91 @@ Pasos:
 - Ejecuta PITRADIO y confirma que en consola aparezca `[TIMING] feed activo con N pilotos`.
 
 Con eso el asistente ya puede anunciar nombre, tiempo y posicion de otros pilotos.
+
+## Sistema de Sesiones y Metricas Objetivo
+
+### Archivos guardados
+
+Al finalizar una sesion de practica (o cualquier otra), el sistema guarda automaticamente:
+
+- **`session_logs/session_<track>_<tipo>_<timestamp>.txt`**
+  - Resumen legible con metrics clave:
+    - Mejor vuelta y promedio.
+    - Consumo de combustible.
+    - Condiciones (grip, temperatura aire/asfalto).
+    - Detalle de últimas 20 vueltas.
+    - Setups testeados (si cambiaste).
+
+- **`session_logs/session_<track>_<tipo>_<timestamp>.json`**
+  - Datos raw (vueltas, fuel, condiciones) para análisis futuro.
+
+### Metricas objetivo en 30 minutos
+
+El asistente calcula automaticamente al fin de sesion:
+
+- **Pace promedio**: ritmo sostenible de carrera.
+- **Degradacion**: cuantos segundos pierdes por vuelta en long-run.
+- **Fuel prediction**: combustible exacto para X minutos restantes + margen.
+- **Setup score** (futuro): consistencia de cada setup testeado.
+
+Ejemplo de reporte final:
+
+```
+[OBJECTIVE] Ritmo de carrera 1:45,250. Combustible necesario 12.3 litros. Margen 0.5 minutos.
+```
+
+### Modo Push-to-Talk (PTT)
+
+Si tienes un control de juego conectado:
+
+- **Detecta automaticamente el control**.
+- **Presiona botón B (configurado en `config.py` → `ptt_button_index`)**.
+- **Habla mientras sostienes**: todo se graba en vivo.
+- **Suelta botón**: se procesa el audio y el asistente responde.
+
+No requiere decir "Radio Check"; funciona como un PTT real de radio.
+
+Para detectar el numero de tu boton:
+
+```bash
+python -c "from ac_race_engineer.audio.controller import print_button_map; print_button_map()"
+```
+
+## Objetivos de Sesión (Briefing en Pits)
+
+Al decir **`Radio Check` desde los pits**, el asistente anuncia el objetivo de sesión personalizado.
+
+### Objetivos por defecto
+
+- **Práctica**: Búsqueda de ritmo y consistencia → Target pace ~1:45.000
+- **Clasificación**: Maximizar una vuelta limpia → Target pace ~1:43.500
+- **Carrera**: Ritmo sostenible + gestión de fuel → Target pace ~1:45.000
+
+Cada objetivo incluye:
+- Meta de sesión (ritmo, vueltas, o carrera completa)
+- Consejo de setup (presión, bias, diferenciales)
+- Estrategia de fuel
+
+### Personalizar objetivos
+
+Edita `config.py` → `session_objectives` para cambiar targets:
+
+```python
+"practice": {
+    "goal": "Búsqueda de ritmo y consistencia",
+    "target_pace": "1:45.000",  # ← Cambia este valor
+    "target_laps": "10 vueltas",
+    "setup_advice": "Comienza con setup anterior o default.",
+    "fuel_strategy": "Llena para 20-30 vueltas."
+}
+```
+
+### Flujo típico de sesión (30 min)
+
+1. **Pits (0-1 min)**: Di `Radio Check` → recibes briefing objetivo
+2. **En pista (1-28 min)**: Realiza vueltas
+   - Comando `Objetivo` para revisar métricas en vivo
+3. **Final (28-30 min)**: Sistema guarda resumen automático en `session_logs/`
 
 ## Notas
 
