@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-04-13T22:36:34.756838",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260413_223009",
+  "rivals": [
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 67.39,
+      "seen_samples": 43,
+      "avg_position": 1.255813953488372,
+      "last_position": 1,
+      "improvements": 1,
+      "ahead_samples": 9,
+      "behind_samples": 0
+    },
+    {
+      "name": "EmreKaratop",
+      "best_lap_seconds": null,
+      "seen_samples": 36,
+      "avg_position": 1.6944444444444444,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 11,
+      "behind_samples": 17
+    },
+    {
+      "name": "korlan",
+      "best_lap_seconds": null,
+      "seen_samples": 7,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 6
+    }
+  ]
+}

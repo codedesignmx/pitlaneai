@@ -28,6 +28,7 @@ class TelemetrySnapshot:
     closest_car_speed_kmh: float | None = None
     nearby_incident_count: int = 0
     track_name: str = "unknown"
+    vehicle_name: str = "unknown"
     session_laps_total: int = 0
     session_time_left_seconds: float = 0.0
     track_grip_percent: float | None = None

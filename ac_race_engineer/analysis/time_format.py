@@ -25,8 +25,8 @@ def speak_lap_time_spanish(seconds: float | None) -> str:
     secs, millis = divmod(remainder, 1000)
     if minutes > 0:
         minute_word = "minuto" if minutes == 1 else "minutos"
-        return f"{minutes} {minute_word} : {secs} segundos . {millis:03d} milesimas"
-    return f"0 minutos : {secs} segundos . {millis:03d} milesimas"
+        return f"{minutes} {minute_word} : {secs} segundos . {millis:03d} milésimas"
+    return f"0 minutos : {secs} segundos . {millis:03d} milésimas"
 
 
 def speak_delta_spanish(seconds: float | None) -> str:
@@ -38,8 +38,8 @@ def speak_delta_spanish(seconds: float | None) -> str:
     secs, millis = divmod(remainder, 1000)
     if minutes > 0:
         minute_word = "minuto" if minutes == 1 else "minutos"
-        return f"{minutes} {minute_word} {secs} segundos {millis:03d} milesimas"
-    return f"{secs} segundos {millis:03d} milesimas"
+        return f"{minutes} {minute_word} {secs} segundos {millis:03d} milésimas"
+    return f"{secs} segundos {millis:03d} milésimas"
 
 
 def speak_laps_spanish(laps: float | None) -> str:

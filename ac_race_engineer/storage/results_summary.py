@@ -54,12 +54,16 @@ def build_session_end_summary(
 
 def load_latest_standings(
     result_dirs: list[str],
+    expected_session_type: str | None = None,
 ) -> list[StandingEntry]:
     for candidate in _find_recent_json_candidates(result_dirs, max_files=30):
         try:
             with candidate.open("r", encoding="utf-8") as f:
                 payload = json.load(f)
         except Exception:
+            continue
+
+        if not _matches_session_type(payload, expected_session_type):
             continue
 
         rows: list[StandingEntry] = []
@@ -89,7 +93,10 @@ def describe_standings_source(result_dirs: list[str]) -> str:
     return f"archivo {latest.name}, actualizado hace {age_s:.1f}s"
 
 
-def load_live_gap_info(result_dirs: list[str]) -> LiveGapInfo:
+def load_live_gap_info(
+    result_dirs: list[str],
+    expected_session_type: str | None = None,
+) -> LiveGapInfo:
     for candidate in _find_recent_json_candidates(result_dirs, max_files=20):
         try:
             with candidate.open("r", encoding="utf-8") as f:
@@ -98,6 +105,8 @@ def load_live_gap_info(result_dirs: list[str]) -> LiveGapInfo:
             continue
 
         if not isinstance(payload, dict):
+            continue
+        if not _matches_session_type(payload, expected_session_type):
             continue
 
         gap_ahead = _pick_float(payload, ["gapAheadSeconds", "gap_ahead_seconds"])
@@ -123,7 +132,10 @@ def load_live_gap_info(result_dirs: list[str]) -> LiveGapInfo:
     return LiveGapInfo()
 
 
-def load_live_car_index_map(result_dirs: list[str]) -> dict[int, str]:
+def load_live_car_index_map(
+    result_dirs: list[str],
+    expected_session_type: str | None = None,
+) -> dict[int, str]:
     for candidate in _find_recent_json_candidates(result_dirs, max_files=20):
         try:
             with candidate.open("r", encoding="utf-8") as f:
@@ -132,6 +144,8 @@ def load_live_car_index_map(result_dirs: list[str]) -> dict[int, str]:
             continue
 
         if not isinstance(payload, dict):
+            continue
+        if not _matches_session_type(payload, expected_session_type):
             continue
 
         standings = payload.get("standings")
@@ -302,6 +316,7 @@ def _row_from_dict(data: dict[str, object]) -> StandingEntry | None:
             "bestLapMs",
             "best_lap_ms",
             "bestLapTime",
+            "bestLapTimeMs",
             "best_lap_time",
             "best",
             "bestTime",
@@ -378,3 +393,38 @@ def _pick_str(data: dict[str, object], keys: list[str]) -> str | None:
             if cleaned:
                 return cleaned
     return None
+
+
+def _matches_session_type(payload: object, expected_session_type: str | None) -> bool:
+    if expected_session_type is None:
+        return True
+    if not isinstance(payload, dict):
+        return True
+
+    session_value = _pick_str(
+        payload,
+        ["sessionType", "session_type", "session", "sessionName"],
+    )
+    if session_value is None:
+        return True
+
+    normalized_payload = session_value.strip().lower()
+    normalized_expected = expected_session_type.strip().lower()
+
+    aliases = {
+        "practice": {"practice", "practica", "práctica"},
+        "qualifying": {"qualifying", "qualification", "qualy", "clasificacion", "clasificación"},
+        "race": {"race", "carrera"},
+    }
+
+    for canonical, values in aliases.items():
+        if normalized_expected in values:
+            normalized_expected = canonical
+            break
+
+    for canonical, values in aliases.items():
+        if normalized_payload in values:
+            normalized_payload = canonical
+            break
+
+    return normalized_payload == normalized_expected

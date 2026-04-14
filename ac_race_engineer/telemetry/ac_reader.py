@@ -197,6 +197,7 @@ class AcSharedMemoryReader:
             nearby_incidents,
         ) = self._compute_proximity(graphics)
         track_name = self._clean_wchar(static.track) if static is not None else "unknown"
+        vehicle_name = self._clean_wchar(static.car_model) if static is not None else "unknown"
         grip_raw = self._optional_range(
             float(getattr(graphics, "surface_grip", 0.0)), 0.4, 1.5, reject_zero=True
         )
@@ -236,6 +237,7 @@ class AcSharedMemoryReader:
             closest_car_speed_kmh=closest_speed_kmh,
             nearby_incident_count=nearby_incidents,
             track_name=track_name,
+            vehicle_name=vehicle_name,
             session_laps_total=max(0, int(graphics.number_of_laps)),
             session_time_left_seconds=max(0.0, float(graphics.session_time_left)),
             track_grip_percent=grip_percent,

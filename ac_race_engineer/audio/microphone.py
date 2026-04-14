@@ -9,6 +9,7 @@ import speech_recognition as sr
 from config import SETTINGS
 from ac_race_engineer.ai.client import OpenAIAssistantClient
 from ac_race_engineer.ai.prompt_builder import build_practice_prompt
+from ac_race_engineer.analysis.setup_coach import SetupCoach
 from ac_race_engineer.analysis.session_state import SessionState
 from ac_race_engineer.audio.controller import ControllerMonitor
 from ac_race_engineer.audio.speaker import Speaker
@@ -39,11 +40,13 @@ class MicrophoneListener:
         speaker: Speaker,
         ai_client: OpenAIAssistantClient,
         session_state: SessionState | None = None,
+        setup_coach: SetupCoach | None = None,
         controller: ControllerMonitor | None = None,
     ) -> None:
         self._speaker = speaker
         self._ai_client = ai_client
         self._session_state = session_state
+        self._setup_coach = setup_coach
         self._controller = controller
         self._activated = False
         self._stop_event = threading.Event()
@@ -243,6 +246,10 @@ class MicrophoneListener:
                     briefing = self._session_state.build_objective_briefing(
                         session_objectives=SETTINGS.session_objectives
                     )
+                    if self._setup_coach is not None:
+                        setup_goal = self._setup_coach.build_objective_guidance(self._session_state)
+                        if setup_goal:
+                            briefing = f"{briefing} {setup_goal}"
                 else:
                     briefing = self._session_state.build_radio_briefing()
                 print(f"[SPEAK] {briefing}")
@@ -329,8 +336,92 @@ class MicrophoneListener:
                 self._speaker.speak(obj_msg)
                 return
             obj_report = self._session_state.build_objective_report()
+            if self._setup_coach is not None:
+                setup_goal = self._setup_coach.build_objective_guidance(self._session_state)
+                if setup_goal:
+                    obj_report = f"{obj_report} {setup_goal}"
             print(f"[SPEAK] {obj_report}")
             self._speaker.speak(obj_report)
+            return
+
+        if self._is_box_box_query(t):
+            self._ignore_pending_assistant_responses()
+            if self._session_state is None:
+                pit_msg = "Sin telemetría todavía para confirmar entrada a boxes."
+                print(f"[SPEAK] {pit_msg}")
+                self._speaker.speak(pit_msg)
+                return
+            setup_feedback = ""
+            if self._setup_coach is not None:
+                setup_feedback = self._setup_coach.build_setup_feedback(self._session_state)
+            pit_msg = self._session_state.build_box_box_report(setup_feedback=setup_feedback)
+            print(f"[SPEAK] {pit_msg}")
+            self._speaker.speak(pit_msg)
+            return
+
+        if self._is_setup_coach_start_query(t):
+            self._ignore_pending_assistant_responses()
+            if self._setup_coach is None:
+                coach_msg = "Setup coach no disponible en esta versión."
+                print(f"[SPEAK] {coach_msg}")
+                self._speaker.speak(coach_msg)
+                return
+            session_type = (
+                self._session_state.last_snapshot.session_type
+                if self._session_state is not None and self._session_state.last_snapshot is not None
+                else "unknown"
+            )
+            coach_msg = self._setup_coach.start(session_type=session_type)
+            print(f"[SPEAK] {coach_msg}")
+            self._speaker.speak(coach_msg)
+            return
+
+        if self._is_setup_coach_stop_query(t):
+            self._ignore_pending_assistant_responses()
+            if self._setup_coach is None:
+                coach_msg = "Setup coach no disponible en esta versión."
+                print(f"[SPEAK] {coach_msg}")
+                self._speaker.speak(coach_msg)
+                return
+            coach_msg = self._setup_coach.stop()
+            print(f"[SPEAK] {coach_msg}")
+            self._speaker.speak(coach_msg)
+            return
+
+        if self._is_setup_feedback_query(t):
+            self._ignore_pending_assistant_responses()
+            if self._setup_coach is None:
+                coach_msg = "Setup coach no disponible en esta versión."
+                print(f"[SPEAK] {coach_msg}")
+                self._speaker.speak(coach_msg)
+                return
+            coach_msg = self._setup_coach.process_feedback(t)
+            print(f"[SPEAK] {coach_msg}")
+            self._speaker.speak(coach_msg)
+            return
+
+        if self._is_rivals_query(t):
+            self._ignore_pending_assistant_responses()
+            if self._session_state is None:
+                rivals_msg = "Sin datos de rivales todavía."
+                print(f"[SPEAK] {rivals_msg}")
+                self._speaker.speak(rivals_msg)
+                return
+            rivals_report = self._session_state.build_rivals_report()
+            print(f"[SPEAK] {rivals_report}")
+            self._speaker.speak(rivals_report)
+            return
+
+        if self._is_microsector_query(t):
+            self._ignore_pending_assistant_responses()
+            if self._session_state is None:
+                ms_msg = "Sin datos todavía para análisis por microsectores."
+                print(f"[SPEAK] {ms_msg}")
+                self._speaker.speak(ms_msg)
+                return
+            ms_report = self._session_state.build_microsector_report()
+            print(f"[SPEAK] {ms_report}")
+            self._speaker.speak(ms_report)
             return
 
         if t.startswith("radio") and len(t.split()) <= 2:
@@ -359,6 +450,111 @@ class MicrophoneListener:
         return any(
             token in text
             for token in ("objetivo", "métricas", "metricas", "ritmo", "pace", "consumo", "fuel", "readiness", "listos")
+        )
+
+    @staticmethod
+    def _is_box_box_query(text: str) -> bool:
+        return any(
+            token in text
+            for token in (
+                "box box",
+                "voy a pits",
+                "voy a boxes",
+                "entro a pits",
+                "entrando a pits",
+                "entraré a pits",
+                "voy por boxes",
+            )
+        )
+
+    @staticmethod
+    def _is_rivals_query(text: str) -> bool:
+        return any(
+            token in text
+            for token in (
+                "rivales",
+                "reporte de rivales",
+                "estado de rivales",
+                "quien va adelante",
+                "quién va adelante",
+                "quien va detras",
+                "quién va detrás",
+            )
+        )
+
+    @staticmethod
+    def _is_microsector_query(text: str) -> bool:
+        return any(
+            token in text
+            for token in (
+                "microsector",
+                "microsectores",
+                "sectores",
+                "en que fallo",
+                "en qué fallo",
+                "donde pierdo",
+                "dónde pierdo",
+                "curvas",
+                "trazada",
+            )
+        )
+
+    @staticmethod
+    def _is_setup_coach_start_query(text: str) -> bool:
+        if any(
+            token in text
+            for token in (
+                "detener setup coach",
+                "terminar setup coach",
+                "salir setup coach",
+                "desactivar setup coach",
+            )
+        ):
+            return False
+        return any(
+            token in text
+            for token in (
+                "setup coach",
+                "iniciar setup",
+                "inicia setup",
+                "coach de setup",
+                "ayuda setup",
+            )
+        )
+
+    @staticmethod
+    def _is_setup_coach_stop_query(text: str) -> bool:
+        return any(
+            token in text
+            for token in (
+                "detener setup coach",
+                "terminar setup coach",
+                "salir setup coach",
+                "desactivar setup coach",
+            )
+        )
+
+    @staticmethod
+    def _is_setup_feedback_query(text: str) -> bool:
+        return any(
+            token in text
+            for token in (
+                "subvir",
+                "sobrevir",
+                "traccion",
+                "tracción",
+                "frenada",
+                "punta",
+                "rebota",
+                "piano",
+                "mejoro",
+                "mejoró",
+                "empeoro",
+                "empeoró",
+                "peor",
+                "igual",
+                "feedback setup",
+            )
         )
 
     @staticmethod

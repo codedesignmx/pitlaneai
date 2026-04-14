@@ -1,0 +1,44 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-13 19:53:06
+Track: rj_doningtonpark2023
+Sesión: race
+Fase detectada: qualy_simulation
+Vueltas totales: 17
+Setup: default
+
+TIEMPOS:
+  Mejor vuelta: 67.526s
+  Promedio: 70.517s
+  Muestras válidas: 17
+
+COMBUSTIBLE:
+  Consumo promedio: 1.283 L/vuelta
+  Muestras: 16
+
+CONDICIONES (inicio → fin):
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+7     93.939s    —          default     
+8     67.747s    1.29L      default     
+9     69.531s    1.21L      default     
+10    69.531s    1.30L      default     
+11    68.932s    1.21L      default     
+12    78.971s    1.28L      default     
+13    67.539s    1.27L      default     
+14    67.526s    1.27L      default     
+15    67.526s    1.25L      default     
+16    68.827s    1.34L      default     
+17    68.775s    1.30L      default     
+18    67.765s    1.31L      default     
+19    67.765s    1.33L      default     
+20    68.932s    1.26L      default     
+21    68.212s    1.30L      default     
+22    68.275s    1.32L      default     
+23    68.999s    1.29L      default     
+
+================================================================================

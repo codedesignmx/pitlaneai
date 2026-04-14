@@ -35,20 +35,36 @@ python app.py
 ### Activacion y estado
 
 - `Radio Check`
-  - Activa el asistente.
+  - Activa el asistente local.
   - Responde `Loud and Clear`.
+  - No se manda al asistente IA; es un comando local de verificacion.
+  - Detecta variantes comunes del reconocimiento como `radio chec`, `radio chek` o `radio shrek`.
   - **Si estás en pits:** Briefing objetivo completo
     - Pista y sesión actual
     - Mejor vuelta (si la hay)
     - Objetivo de sesión (ritmo target, vueltas, consejo de setup)
+    - Referencia competitiva si hay timing en vivo
     - Combustible actual
-  - **Si estás en pista:** Briefing estándar (pista, sesión, ritmo, combustible)
+  - **Si estás en pista:** Briefing estándar (pista, sesión, ritmo, combustible y contexto competitivo si existe)
 
 - `Cancelar Radio`
   - Desactiva el asistente de voz.
 
 - `Que lugar vamos`
-  - Responde posicion actual y tiempo segun la sesion (practica, qualy o carrera).
+- `Posicion`
+- `Posición`
+- `Puesto`
+  - Responde posición actual y tiempo según la sesión.
+  - **En práctica / qualy:**
+    - Tu posición actual
+    - Tu mejor tiempo o última vuelta
+    - Líder actual y cuánto estás del mejor tiempo
+    - Si aplica, cuánto te falta respecto al piloto inmediatamente delante
+  - **En carrera:**
+    - Tu posición actual
+    - Tu última vuelta o mejor vuelta
+    - Quién va delante y por cuánto
+    - Quién va detrás y por cuánto
 
 - `Estado del auto` / `Estado del coche` / `Daños` / `Colisión`
   - Reporta: velocidad actual, combustible, y última colisión detectada (si aplica).
@@ -60,6 +76,9 @@ python app.py
     - Mejor vuelta y promedio últimas 3.
     - Consistencia (excelente / buena).
     - Combustible estimado para X vueltas.
+    - Referencia competitiva cuando hay timing disponible.
+  - **En práctica / qualy:** puede decir líder actual y gap respecto al mejor tiempo.
+  - **En carrera:** puede decir piloto delante y detrás con sus diferencias.
   - Ideal durante practica para evaluar setup y pace target.
 
 - `Informe` / `Briefing` / `Situación general`
@@ -86,6 +105,16 @@ Tambien puedes dejar un valor por defecto en `config.py`:
 
 - `voice_volume_multiplier`
 
+### Respuesta en consola
+
+- Todo lo que el sistema realmente va a decir por voz aparece en consola como:
+
+```text
+[SPEAK] ...
+```
+
+- Si una respuesta vieja de IA llega tarde y ya hubo un comando local más reciente, esa respuesta se descarta para no mezclar mensajes.
+
 ## Eventos automaticos (sin pedirlos por voz)
 
 - `new_best_lap`
@@ -102,6 +131,8 @@ Tambien puedes dejar un valor por defecto en `config.py`:
 - Si en ese momento estas en `P1`, lo canta como mejor tiempo general.
 - Si hay feed de standings en vivo, anuncia mejoras de otros pilotos con nombre, tiempo y posicion.
 - Si alguien marca record de sesion (P1), lo canta con nombre, tiempo y posicion.
+- En practica y qualy, al pasar por meta puede decir quien lidera y cuanto te falta respecto al mejor tiempo.
+- En carrera, al pasar por meta puede decir quien va delante y detras, con sus gaps.
 - Al finalizar sesion (`practice`, `qualifying`, `race`) genera un resumen:
   - Primero tu posicion final y mejor vuelta.
   - Luego repaso general de posiciones si encuentra archivo de resultados local.
@@ -226,3 +257,4 @@ Edita `config.py` → `session_objectives` para cambiar targets:
 - Funciona en offline y online (incluyendo servidores tipo LFMS) mientras Assetto Corsa exponga shared memory.
 - Algunos datos avanzados (ej: meteo completa por feed base) pueden no estar disponibles en todas las versiones/builds del juego.
 - En tiempo real, los nombres/tiempos de *otros* pilotos dependen de la telemetria disponible del servidor o de un feed externo.
+- Los tiempos objetivo y competitivos se locutan en formato de voz para evitar lecturas raras tipo "1 de la mañana".
