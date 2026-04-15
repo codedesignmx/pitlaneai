@@ -15,6 +15,7 @@ class StandingEntry:
     position: int
     name: str
     best_lap_seconds: float | None = None
+    is_player: bool = False
 
 
 @dataclass(slots=True)
@@ -40,15 +41,28 @@ def build_session_end_summary(
     if not standings:
         return own_line + " No encontré clasificación completa para repasar a todos."
 
-    top = sorted(standings, key=lambda s: s.position)
+    if session_label in {"practice", "qualifying"}:
+        # En práctica/qualy la clasificación correcta es por mejor vuelta de sesión.
+        top = sorted(
+            standings,
+            key=lambda s: (
+                s.best_lap_seconds is None,
+                float(s.best_lap_seconds or 1e9),
+                s.position,
+            ),
+        )
+    else:
+        top = sorted(standings, key=lambda s: s.position)
+
     recap_parts: list[str] = []
-    for row in top[:20]:
+    for idx, row in enumerate(top[:20], start=1):
+        spoken_pos = idx if session_label in {"practice", "qualifying"} else row.position
         if row.best_lap_seconds is not None:
             recap_parts.append(
-                f"Posición {row.position}, {row.name}, mejor vuelta {speak_lap_time_spanish(row.best_lap_seconds)}"
+                f"Posición {spoken_pos}, {row.name}, mejor vuelta {speak_lap_time_spanish(row.best_lap_seconds)}"
             )
         else:
-            recap_parts.append(f"Posición {row.position}, {row.name}")
+            recap_parts.append(f"Posición {spoken_pos}, {row.name}")
     return own_line + " Repaso general. " + ". ".join(recap_parts) + "."
 
 
@@ -69,13 +83,33 @@ def load_latest_standings(
         rows: list[StandingEntry] = []
         _collect_rows(payload, rows)
 
-        unique: dict[tuple[int, str], StandingEntry] = {}
+        unique: dict[str, StandingEntry] = {}
         for row in rows:
             if row.position <= 0 or not row.name:
                 continue
-            key = (row.position, row.name.lower())
-            if key not in unique:
+            key = row.name.lower()
+            prev = unique.get(key)
+            if prev is None:
                 unique[key] = row
+                continue
+
+            # Consolidar por nombre para evitar duplicados del mismo piloto
+            # en distintos nodos/posiciones del JSON.
+            best_position = min(prev.position, row.position)
+            if prev.best_lap_seconds is None:
+                best_lap = row.best_lap_seconds
+            elif row.best_lap_seconds is None:
+                best_lap = prev.best_lap_seconds
+            else:
+                best_lap = min(prev.best_lap_seconds, row.best_lap_seconds)
+
+            chosen_name = prev.name if len(prev.name) >= len(row.name) else row.name
+            unique[key] = StandingEntry(
+                position=best_position,
+                name=chosen_name,
+                best_lap_seconds=best_lap,
+                is_player=bool(prev.is_player or row.is_player),
+            )
 
         standings = sorted(unique.values(), key=lambda r: r.position)
         if len(standings) >= 2:
@@ -174,9 +208,12 @@ def load_live_car_index_map(
 def detect_standings_updates(
     previous: list[StandingEntry],
     current: list[StandingEntry],
+    player_position: int | None = None,
+    player_name: str | None = None,
 ) -> list[str]:
     prev_map = {row.name.lower(): row for row in previous}
     updates: list[tuple[int, str]] = []
+    local_name_key = _normalize_name(player_name)
 
     prev_leader = _leader_with_time(previous)
     curr_leader = _leader_with_time(current)
@@ -196,6 +233,15 @@ def detect_standings_updates(
         )
 
     for row in current:
+        if row.is_player:
+            # El propio piloto nunca debe anunciarse como rival.
+            continue
+        if local_name_key and _normalize_name(row.name) == local_name_key:
+            continue
+        if player_position is not None and player_position > 0 and row.position == player_position:
+            # No anunciar mejoras del propio piloto en el canal de rivales.
+            continue
+
         key = row.name.lower()
         prev = prev_map.get(key)
 
@@ -228,11 +274,25 @@ def detect_standings_updates(
 def _leader_with_time(rows: list[StandingEntry]) -> StandingEntry | None:
     if not rows:
         return None
-    sorted_rows = sorted(rows, key=lambda r: r.position)
+    sorted_rows = sorted(
+        rows,
+        key=lambda r: (
+            r.best_lap_seconds is None,
+            float(r.best_lap_seconds or 1e9),
+            r.position,
+        ),
+    )
     for row in sorted_rows:
         if row.best_lap_seconds is not None and row.best_lap_seconds > 0:
             return row
     return None
+
+
+def _normalize_name(name: str | None) -> str:
+    if not name:
+        return ""
+    cleaned = name.strip().lower()
+    return " ".join(cleaned.split())
 
 
 def _find_recent_json_candidates(result_dirs: list[str], max_files: int = 20) -> list[Path]:
@@ -329,7 +389,18 @@ def _row_from_dict(data: dict[str, object]) -> StandingEntry | None:
         elif lap_ms > 0.0:
             lap_seconds = lap_ms
 
-    return StandingEntry(position=pos, name=name, best_lap_seconds=lap_seconds)
+    is_player = _pick_bool(data, ["isPlayer", "is_player", "player", "self"]) or False
+    if not is_player:
+        driver_node = data.get("driver")
+        if isinstance(driver_node, dict):
+            is_player = _pick_bool(driver_node, ["isPlayer", "is_player", "player", "self"]) or False
+
+    return StandingEntry(
+        position=pos,
+        name=name,
+        best_lap_seconds=lap_seconds,
+        is_player=is_player,
+    )
 
 
 def _pick_int(data: dict[str, object], keys: list[str]) -> int | None:
@@ -358,6 +429,22 @@ def _pick_float(data: dict[str, object], keys: list[str]) -> float | None:
                 return float(cleaned)
             except ValueError:
                 pass
+    return None
+
+
+def _pick_bool(data: dict[str, object], keys: list[str]) -> bool | None:
+    for key in keys:
+        value = data.get(key)
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return bool(value)
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"1", "true", "yes", "si", "sí"}:
+                return True
+            if normalized in {"0", "false", "no"}:
+                return False
     return None
 
 

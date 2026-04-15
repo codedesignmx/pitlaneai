@@ -1,0 +1,40 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-14 20:15:23
+Track: rj_doningtonpark2023
+Vehículo: tatuusfa1
+Sesión: practice
+Fase detectada: setup_test
+Vueltas totales: 4
+Setup: 60db1ba4a136 (TFA01-DONINGTONPARK-Q)
+
+TIEMPOS:
+  Mejor vuelta: 65.480s
+  Promedio: 66.804s
+  Muestras válidas: 4
+
+COMBUSTIBLE:
+  Consumo promedio: 1.284 L/vuelta
+  Muestras: 4
+
+CONDICIONES (inicio → fin):
+
+ITERACIONES SETUP COACH:
+  1. auto_braking_instability -> up FRONT_BIAS (1 clic), resultado: better.
+     motivo: evitar inestabilidad en fase de frenada
+  2. auto_understeer_entry -> up WING_1 (1 clic), resultado: better.
+     motivo: más apoyo delantero en entrada
+  3. auto_braking_instability -> up FRONT_BIAS (1 clic), resultado: pending.
+     motivo: evitar inestabilidad en fase de frenada
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+10    67.837s    0.04L      60db1ba4a136
+11    66.361s    2.56L      60db1ba4a136
+12    65.480s    1.27L      60db1ba4a136
+13    67.539s    1.25L      60db1ba4a136
+
+================================================================================

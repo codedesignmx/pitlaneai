@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-04-14T11:35:54.895164",
+  "track": "rj_doningtonpark2023",
+  "vehicle": "tatuusfa1",
+  "session_type": "practice",
+  "phase": "warm_up",
+  "setup_notes": "65cc2236cfa8 (TFA01-DONINGTONPARK-Q)",
+  "setup_iterations": [],
+  "snapshots": [
+    {
+      "lap_number": 1,
+      "lap_time": 114.022,
+      "fuel_used": null,
+      "fuel_remaining": 2.7740066051483154,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "65cc2236cfa8",
+      "air_temp": null,
+      "asphalt_temp": null,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-14T11:33:37.092230"
+    },
+    {
+      "lap_number": 2,
+      "lap_time": 66.47,
+      "fuel_used": 1.255694031715393,
+      "fuel_remaining": 1.5183125734329224,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "65cc2236cfa8",
+      "air_temp": null,
+      "asphalt_temp": null,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-14T11:34:43.600463"
+    }
+  ]
+}

@@ -38,6 +38,7 @@ class Speaker:
         self._volume_multiplier = max(0.0, float(volume_multiplier))
         self._volume_preset = self._infer_preset(self._volume_multiplier)
         self._stop_event = threading.Event()
+        self._interrupt_event = threading.Event()
         self._thread: threading.Thread | None = None
         self._talk_lock = threading.Lock()
         self.is_speaking = False
@@ -68,6 +69,7 @@ class Speaker:
             return
         with self._talk_lock:
             self.is_speaking = True
+            self._interrupt_event.clear()
             try:
                 mp3_path = os.path.join(AUDIO_DIR, f"msg_{int(time.time() * 1000)}.mp3")
                 tts = gTTS(text=text, lang=self._lang, slow=False)
@@ -82,6 +84,9 @@ class Speaker:
                     pygame.mixer.music.set_volume(min(self._volume_multiplier, 1.0))
                     pygame.mixer.music.play()
                     while pygame.mixer.music.get_busy():
+                        if self._interrupt_event.is_set():
+                            pygame.mixer.music.stop()
+                            break
                         pygame.time.Clock().tick(20)
 
                 try:
@@ -105,6 +110,18 @@ class Speaker:
             finally:
                 self.is_speaking = False
 
+    def interrupt_current_speech(self, clear_queue: bool = False) -> None:
+        self._interrupt_event.set()
+        try:
+            pygame.mixer.music.stop()
+        except Exception:
+            pass
+        if clear_queue:
+            try:
+                self._queue.clear()
+            except Exception:
+                pass
+
     def _play_with_gain_boost(self, file_path: str, gain: float) -> bool:
         """Try software amplification for gain > 1.0 using numpy + sndarray.
 
@@ -121,6 +138,9 @@ class Speaker:
             boosted_sound = pygame.sndarray.make_sound(boosted)
             channel = boosted_sound.play()
             while channel is not None and channel.get_busy():
+                if self._interrupt_event.is_set():
+                    channel.stop()
+                    break
                 pygame.time.Clock().tick(20)
             return True
         except Exception:

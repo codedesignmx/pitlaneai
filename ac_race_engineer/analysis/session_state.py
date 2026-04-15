@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import re
+from typing import TYPE_CHECKING
 
 from ac_race_engineer.analysis.fuel import average_fuel_per_lap, estimate_laps_left
 from ac_race_engineer.analysis.pace import average_last_n, best_lap, last_lap
@@ -10,10 +11,14 @@ from ac_race_engineer.analysis.time_format import (
     speak_lap_time_spanish,
     speak_laps_spanish,
 )
+from ac_race_engineer.analysis.session_objectives import SessionObjectiveSet
 from ac_race_engineer.storage.performance_history import load_historical_pace_summary
-from ac_race_engineer.storage.results_summary import StandingEntry
+from ac_race_engineer.storage.results_summary import StandingEntry, build_session_end_summary
 from ac_race_engineer.storage.track_sections import label_for_position, load_sections
 from ac_race_engineer.telemetry.models import LapRecord, SessionStats, TelemetrySnapshot
+
+if TYPE_CHECKING:
+    from ac_race_engineer.analysis.setup_coach import SetupCoach
 
 
 @dataclass(slots=True)
@@ -24,11 +29,16 @@ class SessionState:
     last_completed_lap_counter: int = -1  # -1 = todavía no inicializado
     last_collision_note: str | None = None
     live_standings: list[StandingEntry] = field(default_factory=list)
+    session_best_standings: dict[str, StandingEntry] = field(default_factory=dict)
     live_gap_ahead_seconds: float | None = None
     live_gap_behind_seconds: float | None = None
     active_setup_id: str | None = None
     active_setup_label: str | None = None
     _track_sections: list = field(default_factory=list)
+    active_objectives: SessionObjectiveSet | None = None
+    objectives_intro_announced: bool = False
+    session_total_seconds: float = 0.0
+    session_lap_start_index: int = 0
     microsector_count: int = 20
     current_lap_trace: list[tuple[float, float, float, float]] = field(default_factory=list)
     last_lap_micro_profile: dict[int, dict[str, float]] = field(default_factory=dict)
@@ -96,6 +106,22 @@ class SessionState:
         self.last_snapshot = snapshot
         return created_lap
 
+    def restore_laps(self, laps_data: list[dict]) -> None:
+        """Inyecta vueltas guardadas en el checkpoint al estado actual."""
+        for item in laps_data:
+            try:
+                lap = LapRecord(
+                    lap_number=int(item["lap_number"]),
+                    lap_time_seconds=float(item["lap_time_seconds"]),
+                    fuel_at_lap_start=item.get("fuel_at_lap_start"),
+                    fuel_at_lap_end=item.get("fuel_at_lap_end"),
+                    fuel_used=item.get("fuel_used"),
+                )
+                if 30.0 <= lap.lap_time_seconds <= 600.0:
+                    self.laps.append(lap)
+            except Exception:
+                continue
+
     def get_stats(self) -> SessionStats:
         best = best_lap(self.laps)
         last = last_lap(self.laps)
@@ -120,6 +146,31 @@ class SessionState:
         gap_behind_seconds: float | None = None,
     ) -> None:
         self.live_standings = list(sorted(standings, key=lambda row: row.position))
+        for row in standings:
+            if not row.name:
+                continue
+            key = row.name.strip().lower()
+            prev = self.session_best_standings.get(key)
+            if prev is None:
+                self.session_best_standings[key] = row
+                continue
+
+            if prev.best_lap_seconds is None:
+                best_lap = row.best_lap_seconds
+            elif row.best_lap_seconds is None:
+                best_lap = prev.best_lap_seconds
+            else:
+                best_lap = min(prev.best_lap_seconds, row.best_lap_seconds)
+
+            best_pos = min(prev.position, row.position)
+            merged = StandingEntry(
+                position=best_pos,
+                name=prev.name if len(prev.name) >= len(row.name) else row.name,
+                best_lap_seconds=best_lap,
+                is_player=bool(prev.is_player or row.is_player),
+            )
+            self.session_best_standings[key] = merged
+
         self.live_gap_ahead_seconds = gap_ahead_seconds
         self.live_gap_behind_seconds = gap_behind_seconds
 
@@ -269,16 +320,11 @@ class SessionState:
             return "Sin vuelta válida todavía. Completa esta vuelta y te doy análisis de ritmo."
 
         parts: list[str] = []
-        parts.append(f"Última vuelta {speak_lap_time_spanish(stats.last_lap_seconds)}.")
 
-        if stats.best_lap_seconds is not None:
+        if stats.best_lap_seconds is not None and stats.last_lap_seconds is not None:
             delta = stats.last_lap_seconds - stats.best_lap_seconds
-            if delta <= 0.15:
-                parts.append("Ritmo fuerte, estás muy cerca de tu mejor vuelta.")
-            elif delta >= 0.6:
+            if delta >= 0.6:
                 parts.append("Perdiste ritmo, enfoca salida de curva y tracción.")
-            else:
-                parts.append("Ritmo estable, hay margen pequeño para mejorar.")
 
         if stats.estimated_laps_left is not None:
             parts.append(f"Combustible para {speak_laps_spanish(stats.estimated_laps_left)}.")
@@ -426,7 +472,6 @@ class SessionState:
         is_in_pit = snap.is_in_pit
 
         # Parte 1: Info básica
-        where_label = "en pits" if is_in_pit else "en pista"
         track_label = snap.track_name if snap.track_name and snap.track_name != "unknown" else "pista desconocida"
         
         session_name_map = {
@@ -441,7 +486,23 @@ class SessionState:
         }
         session_label = session_name_map.get(session_type, "sesión desconocida")
         
-        info_line = f"Estamos en {track_label}. Sesión {session_label}, estado {where_label}."
+        total_seconds = self._normalize_session_seconds(self.session_total_seconds)
+        remaining_seconds = self._normalize_session_seconds(snap.session_time_left_seconds)
+
+        time_bits: list[str] = []
+        if total_seconds is not None:
+            total_minutes = int(round(total_seconds / 60.0))
+            total_word = "minuto" if total_minutes == 1 else "minutos"
+            time_bits.append(f"tiempo total {total_minutes} {total_word}")
+        if remaining_seconds is not None:
+            remaining_minutes = int(round(remaining_seconds / 60.0))
+            remaining_word = "minuto" if remaining_minutes == 1 else "minutos"
+            time_bits.append(f"restan {remaining_minutes} {remaining_word}")
+
+        if time_bits:
+            info_line = f"Estamos en {track_label}. Sesión {session_label}, {', '.join(time_bits)}."
+        else:
+            info_line = f"Estamos en {track_label}. Sesión {session_label}."
         
         # Parte 2: Ritmo (si lo hay)
         stats = self.get_stats()
@@ -506,21 +567,29 @@ class SessionState:
 
         rival_line = ""
         if history.rival_best_name and history.rival_best_seconds is not None:
-            rival_line = (
-                f"Referencia rival histórica: {history.rival_best_name} con "
-                f"{speak_lap_time_spanish(history.rival_best_seconds)}."
+            repeats_target_reference = (
+                target_source == "rival"
+                and target_seconds is not None
+                and abs(history.rival_best_seconds - target_seconds) <= 0.001
             )
+            if not repeats_target_reference:
+                rival_line = (
+                    f"Referencia rival histórica: {history.rival_best_name} con "
+                    f"{speak_lap_time_spanish(history.rival_best_seconds)}."
+                )
 
         setup_line = ""
         if history.own_best_setup_id:
             best_setup_label = history.own_best_setup_label or history.own_best_setup_id
             active_label = self.active_setup_label or self.active_setup_id
-            if self.active_setup_id and self.active_setup_id == history.own_best_setup_id:
-                setup_line = f"Setup actual coincide con el mejor histórico: {best_setup_label}."
-            else:
-                setup_line = f"Setup con mejor resultado histórico: {best_setup_label}."
-                if active_label:
-                    setup_line += f" Setup actual: {active_label}."
+            same_setup_id = self.active_setup_id and self.active_setup_id == history.own_best_setup_id
+            same_setup_label = (
+                bool(active_label)
+                and str(active_label).strip().lower() == str(best_setup_label).strip().lower()
+            )
+            setup_line = f"Setup con mejor resultado histórico: {best_setup_label}."
+            if active_label and not same_setup_id and not same_setup_label:
+                setup_line += f" Setup actual: {active_label}."
         elif self.active_setup_label:
             setup_line = f"Setup actual detectado: {self.active_setup_label}."
         elif self.active_setup_id:
@@ -589,24 +658,93 @@ class SessionState:
 
         return " ".join(parts)
 
-    def build_box_box_report(self, setup_feedback: str = "") -> str:
+    def capture_session_time(self, seconds: float) -> bool:
+        """Registra el tiempo total de sesión en el primer tick válido.
+
+        Retorna True si fue la primera captura (útil para refinar objetivos).
+        """
+        normalized_seconds = self._normalize_session_seconds(seconds)
+        if self.session_total_seconds == 0.0 and normalized_seconds is not None and normalized_seconds > 5.0:
+            self.session_total_seconds = normalized_seconds
+            if self.active_objectives is not None:
+                self.active_objectives.update_session_time(normalized_seconds / 60.0)
+            return True
+        return False
+
+    @staticmethod
+    def _normalize_session_seconds(seconds: float | None) -> float | None:
+        if seconds is None or seconds <= 0.0:
+            return None
+
+        value = float(seconds)
+        # Algunos feeds llegan en milisegundos; convertir para evitar tiempos absurdos.
+        if value > 21600.0:  # 6 horas
+            value = value / 1000.0
+
+        # Si sigue fuera de rango razonable, mejor no anunciarlo.
+        if value <= 0.0 or value > 86400.0:
+            return None
+
+        return value
+
+    def build_box_box_report(
+        self,
+        setup_feedback: str = "",
+        setup_coach: "SetupCoach | None" = None,
+    ) -> str:
         snap = self.last_snapshot
         if snap is None:
             return "Sin telemetría todavía para confirmar entrada a boxes."
 
+        parts: list[str] = ["Box box, recibido."]
+
+        # Evaluación de objetivos si existen
+        obj_set = self.active_objectives
+        if obj_set is not None:
+            obj_set.evaluate(self, setup_coach=setup_coach)
+            obj_summary = obj_set.voice_summary()
+            if obj_summary:
+                parts.append(obj_summary)
+        else:
+            # Fallback: resumen bueno/malo sin objetivos formales
+            good_summary, bad_summary = self._build_performance_review()
+            if good_summary:
+                parts.append(f"Lo bueno: {good_summary}.")
+            if bad_summary:
+                parts.append(f"Lo malo: {bad_summary}.")
+
         if snap.session_type == "race":
             strategy = self._build_race_box_strategy()
-            return f"Box box, recibido. {strategy}" if strategy else "Box box, recibido."
-
-        good_summary, bad_summary = self._build_performance_review()
-        parts: list[str] = ["Box box, recibido."]
-        if good_summary:
-            parts.append(f"Lo bueno: {good_summary}.")
-        if bad_summary:
-            parts.append(f"Lo malo: {bad_summary}.")
-        if setup_feedback:
+            if strategy:
+                parts.append(strategy)
+        elif setup_feedback:
             parts.append(setup_feedback)
+
         return " ".join(parts)
+
+    def build_session_summary(self) -> str:
+        snap = self.last_snapshot
+        if snap is None:
+            return "Sin telemetría todavía para resumen de sesión."
+
+        if snap.session_type not in {"practice", "qualifying", "race"}:
+            return f"No tengo resumen configurado para la sesión {snap.session_type}."
+
+        standings: list[StandingEntry] = []
+        if snap.session_type in {"practice", "qualifying"}:
+            standings = self._get_hotlap_ranked_standings()
+        elif self.live_standings:
+            standings = list(self.live_standings)
+        elif self.session_best_standings:
+            standings = list(self.session_best_standings.values())
+
+        stats = self.get_stats()
+        return build_session_end_summary(
+            session_label=snap.session_type,
+            own_position=snap.player_position,
+            own_best_lap=stats.best_lap_seconds,
+            standings=standings,
+        )
 
     def build_rivals_report(self) -> str:
         snap = self.last_snapshot
@@ -731,8 +869,9 @@ class SessionState:
             return remaining
 
         avg_lap = stats.avg_last_5_seconds or stats.avg_last_3_seconds or stats.best_lap_seconds
-        if snap.session_time_left_seconds > 0 and avg_lap is not None and avg_lap > 0.0:
-            return max(snap.session_time_left_seconds / avg_lap, 0.0)
+        remaining_seconds = self._normalize_session_seconds(snap.session_time_left_seconds)
+        if remaining_seconds is not None and avg_lap is not None and avg_lap > 0.0:
+            return max(remaining_seconds / avg_lap, 0.0)
 
         return None
 
@@ -777,15 +916,23 @@ class SessionState:
         if snap is None or snap.player_position <= 0 or stats.best_lap_seconds is None:
             return ""
 
-        leader = self._get_standing_by_position(1)
-        if leader is None or leader.best_lap_seconds is None:
+        ranked = self._get_hotlap_ranked_standings()
+        if not ranked:
             return ""
 
-        if snap.player_position == 1:
-            second = self._get_standing_by_position(2)
+        leader = ranked[0]
+        leader_best = float(leader.best_lap_seconds or 0.0)
+        if leader_best <= 0.0:
+            return ""
+
+        own_best = stats.best_lap_seconds
+
+        # Liderato por tabla de mejor vuelta de sesión (no por posición cruda del feed).
+        if own_best <= leader_best + 0.001:
+            second = ranked[1] if len(ranked) > 1 else None
             if second is None or second.best_lap_seconds is None:
                 return ""
-            advantage = second.best_lap_seconds - stats.best_lap_seconds
+            advantage = float(second.best_lap_seconds) - own_best
             if advantage <= 0:
                 return ""
             prefix = "Paso por meta. " if include_position else ""
@@ -794,15 +941,15 @@ class SessionState:
                 f"{speak_delta_spanish(advantage)}."
             )
 
-        gap_to_leader = stats.best_lap_seconds - leader.best_lap_seconds
+        gap_to_leader = own_best - leader_best
         parts = [
-            f"Líder {leader.name} con {speak_lap_time_spanish(leader.best_lap_seconds)}.",
+            f"Líder {leader.name} con {speak_lap_time_spanish(leader_best)}.",
             f"Estamos a {speak_delta_spanish(gap_to_leader)} del mejor tiempo.",
         ]
 
-        ahead = self._get_standing_by_position(snap.player_position - 1)
+        ahead = self._get_hotlap_ahead_by_time(own_best)
         if ahead is not None and ahead.best_lap_seconds is not None:
-            gap_to_ahead = stats.best_lap_seconds - ahead.best_lap_seconds
+            gap_to_ahead = own_best - float(ahead.best_lap_seconds)
             if gap_to_ahead > 0:
                 parts.append(
                     f"Delante, {ahead.name} a {speak_delta_spanish(gap_to_ahead)}."
@@ -811,6 +958,32 @@ class SessionState:
         if include_position:
             return "Paso por meta. " + " ".join(parts)
         return " ".join(parts)
+
+    def _get_hotlap_ranked_standings(self) -> list[StandingEntry]:
+        combined: dict[str, StandingEntry] = {}
+        for row in self.session_best_standings.values():
+            if row.best_lap_seconds is None or row.best_lap_seconds <= 0.0:
+                continue
+            combined[row.name.strip().lower()] = row
+
+        for row in self.live_standings:
+            if row.best_lap_seconds is None or row.best_lap_seconds <= 0.0:
+                continue
+            key = row.name.strip().lower()
+            prev = combined.get(key)
+            if prev is None or float(row.best_lap_seconds) < float(prev.best_lap_seconds):
+                combined[key] = row
+
+        rows = list(combined.values())
+        rows.sort(key=lambda r: (float(r.best_lap_seconds), r.name.lower()))
+        return rows
+
+    def _get_hotlap_ahead_by_time(self, own_best: float) -> StandingEntry | None:
+        ranked = self._get_hotlap_ranked_standings()
+        faster = [row for row in ranked if float(row.best_lap_seconds or 0.0) + 0.001 < own_best]
+        if not faster:
+            return None
+        return faster[-1]
 
     def _build_race_reference_summary(
         self,

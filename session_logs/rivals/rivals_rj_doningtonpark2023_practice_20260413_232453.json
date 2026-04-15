@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-04-13T23:32:04.015049",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260413_232453",
+  "rivals": [
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.673,
+      "seen_samples": 3,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 2,
+      "behind_samples": 0
+    },
+    {
+      "name": "Oxyacid",
+      "best_lap_seconds": 65.073,
+      "seen_samples": 3,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Sargento.Garcia",
+      "best_lap_seconds": null,
+      "seen_samples": 3,
+      "avg_position": 3.0,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 3
+    },
+    {
+      "name": "EmreKaratop",
+      "best_lap_seconds": null,
+      "seen_samples": 3,
+      "avg_position": 4.0,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 3
+    }
+  ]
+}

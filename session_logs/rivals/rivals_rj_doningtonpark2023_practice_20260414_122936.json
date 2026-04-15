@@ -1,0 +1,158 @@
+{
+  "timestamp": "2026-04-14T12:36:30.898233",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260414_122936",
+  "rivals": [
+    {
+      "name": "Guiller Varela",
+      "best_lap_seconds": 66.901,
+      "seen_samples": 52,
+      "avg_position": 1.8461538461538463,
+      "last_position": 1,
+      "improvements": 1,
+      "ahead_samples": 49,
+      "behind_samples": 1
+    },
+    {
+      "name": "Lenny Kinne",
+      "best_lap_seconds": 66.676,
+      "seen_samples": 1,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 1,
+      "behind_samples": 0
+    },
+    {
+      "name": "Loading_malton",
+      "best_lap_seconds": 65.89,
+      "seen_samples": 51,
+      "avg_position": 2.0588235294117645,
+      "last_position": 2,
+      "improvements": 1,
+      "ahead_samples": 50,
+      "behind_samples": 0
+    },
+    {
+      "name": "BANAN2355",
+      "best_lap_seconds": 66.361,
+      "seen_samples": 1,
+      "avg_position": 3.0,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 1,
+      "behind_samples": 0
+    },
+    {
+      "name": "CHEMA",
+      "best_lap_seconds": 66.485,
+      "seen_samples": 52,
+      "avg_position": 2.423076923076923,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 50,
+      "behind_samples": 1
+    },
+    {
+      "name": "Balogh",
+      "best_lap_seconds": 66.654,
+      "seen_samples": 1,
+      "avg_position": 4.0,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 0
+    },
+    {
+      "name": "jamespilott",
+      "best_lap_seconds": 68.589,
+      "seen_samples": 33,
+      "avg_position": 4.848484848484849,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 14
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.879,
+      "seen_samples": 52,
+      "avg_position": 4.75,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 5,
+      "behind_samples": 33
+    },
+    {
+      "name": "Stefano Chebellagiornat",
+      "best_lap_seconds": null,
+      "seen_samples": 19,
+      "avg_position": 5.0,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 10
+    },
+    {
+      "name": "Aleksandr Voronov",
+      "best_lap_seconds": null,
+      "seen_samples": 30,
+      "avg_position": 5.7,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 25
+    },
+    {
+      "name": "LEctric",
+      "best_lap_seconds": 64.305,
+      "seen_samples": 1,
+      "avg_position": 7.0,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Paulo SENNA",
+      "best_lap_seconds": 65.472,
+      "seen_samples": 1,
+      "avg_position": 8.0,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Suphasin Kangmoon",
+      "best_lap_seconds": 70.45,
+      "seen_samples": 1,
+      "avg_position": 9.0,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Player",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 10.0,
+      "last_position": 10,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "jaime_mb_",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 11.0,
+      "last_position": 11,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    }
+  ]
+}

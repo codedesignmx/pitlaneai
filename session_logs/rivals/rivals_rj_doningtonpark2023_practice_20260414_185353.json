@@ -1,0 +1,418 @@
+{
+  "timestamp": "2026-04-14T18:59:07.038470",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260414_185353",
+  "rivals": [
+    {
+      "name": "GORDO Q MUESTra los PEZONES",
+      "best_lap_seconds": null,
+      "seen_samples": 38,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 38,
+      "behind_samples": 0
+    },
+    {
+      "name": "Loading_malton",
+      "best_lap_seconds": 65.547,
+      "seen_samples": 1,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 1,
+      "behind_samples": 0
+    },
+    {
+      "name": "Astral",
+      "best_lap_seconds": null,
+      "seen_samples": 38,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 38,
+      "behind_samples": 0
+    },
+    {
+      "name": "Guiller Varela",
+      "best_lap_seconds": 66.618,
+      "seen_samples": 1,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 1,
+      "behind_samples": 0
+    },
+    {
+      "name": "mikjiji",
+      "best_lap_seconds": null,
+      "seen_samples": 38,
+      "avg_position": 3.0,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 38,
+      "behind_samples": 0
+    },
+    {
+      "name": "berazadii",
+      "best_lap_seconds": null,
+      "seen_samples": 38,
+      "avg_position": 4.0,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 38,
+      "behind_samples": 0
+    },
+    {
+      "name": "Necrodogs (H. Olsen)",
+      "best_lap_seconds": 66.247,
+      "seen_samples": 1,
+      "avg_position": 4.0,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "BuTTMaNaNDRoBBiN",
+      "best_lap_seconds": 68.691,
+      "seen_samples": 38,
+      "avg_position": 6.605263157894737,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 32,
+      "behind_samples": 5
+    },
+    {
+      "name": "jamespilott",
+      "best_lap_seconds": 66.141,
+      "seen_samples": 1,
+      "avg_position": 5.0,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "CHEMA",
+      "best_lap_seconds": 66.451,
+      "seen_samples": 1,
+      "avg_position": 6.0,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "SinNombre",
+      "best_lap_seconds": null,
+      "seen_samples": 38,
+      "avg_position": 5.078947368421052,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 38,
+      "behind_samples": 0
+    },
+    {
+      "name": "Luciano Falese",
+      "best_lap_seconds": 66.903,
+      "seen_samples": 1,
+      "avg_position": 7.0,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.864,
+      "seen_samples": 39,
+      "avg_position": 8.307692307692308,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 7,
+      "behind_samples": 13
+    },
+    {
+      "name": "Dagon",
+      "best_lap_seconds": null,
+      "seen_samples": 38,
+      "avg_position": 6.684210526315789,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 38,
+      "behind_samples": 0
+    },
+    {
+      "name": "Pasgato",
+      "best_lap_seconds": 65.0,
+      "seen_samples": 1,
+      "avg_position": 8.0,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "GURR3N",
+      "best_lap_seconds": 67.049,
+      "seen_samples": 38,
+      "avg_position": 8.763157894736842,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 7,
+      "behind_samples": 17
+    },
+    {
+      "name": "Lenny Kinne",
+      "best_lap_seconds": 66.247,
+      "seen_samples": 1,
+      "avg_position": 9.0,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "elpatozz",
+      "best_lap_seconds": 69.085,
+      "seen_samples": 29,
+      "avg_position": 10.551724137931034,
+      "last_position": 10,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 28
+    },
+    {
+      "name": "flixy",
+      "best_lap_seconds": 68.888,
+      "seen_samples": 1,
+      "avg_position": 10.0,
+      "last_position": 10,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Daniel Avellaneda Rojas",
+      "best_lap_seconds": 65.549,
+      "seen_samples": 1,
+      "avg_position": 11.0,
+      "last_position": 11,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "UchihaTonox",
+      "best_lap_seconds": null,
+      "seen_samples": 29,
+      "avg_position": 9.689655172413794,
+      "last_position": 11,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 25
+    },
+    {
+      "name": "Gonzalo Navarro",
+      "best_lap_seconds": 67.71,
+      "seen_samples": 1,
+      "avg_position": 12.0,
+      "last_position": 12,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Tiago Roel",
+      "best_lap_seconds": null,
+      "seen_samples": 14,
+      "avg_position": 12.0,
+      "last_position": 12,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 14
+    },
+    {
+      "name": "-.MACHY.-",
+      "best_lap_seconds": 68.614,
+      "seen_samples": 1,
+      "avg_position": 13.0,
+      "last_position": 13,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "NeoNismo_k",
+      "best_lap_seconds": null,
+      "seen_samples": 2,
+      "avg_position": 13.0,
+      "last_position": 13,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 2
+    },
+    {
+      "name": "reegan wraith",
+      "best_lap_seconds": 65.858,
+      "seen_samples": 1,
+      "avg_position": 14.0,
+      "last_position": 14,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "remolin55",
+      "best_lap_seconds": 67.793,
+      "seen_samples": 1,
+      "avg_position": 15.0,
+      "last_position": 15,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Andrew P",
+      "best_lap_seconds": 65.478,
+      "seen_samples": 1,
+      "avg_position": 16.0,
+      "last_position": 16,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "OminousRex",
+      "best_lap_seconds": 67.537,
+      "seen_samples": 1,
+      "avg_position": 17.0,
+      "last_position": 17,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Fernando Revillas",
+      "best_lap_seconds": 85.419,
+      "seen_samples": 1,
+      "avg_position": 18.0,
+      "last_position": 18,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Stefano Chebellagiornat",
+      "best_lap_seconds": 68.752,
+      "seen_samples": 1,
+      "avg_position": 19.0,
+      "last_position": 19,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Don Huwu",
+      "best_lap_seconds": 67.89,
+      "seen_samples": 1,
+      "avg_position": 20.0,
+      "last_position": 20,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Amancio Gil",
+      "best_lap_seconds": 65.741,
+      "seen_samples": 1,
+      "avg_position": 21.0,
+      "last_position": 21,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Mawik",
+      "best_lap_seconds": 142.983,
+      "seen_samples": 1,
+      "avg_position": 22.0,
+      "last_position": 22,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Aleksandr Voronov",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 23.0,
+      "last_position": 23,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Gonzalo Olmos",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 24.0,
+      "last_position": 24,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Lore92AGL",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 25.0,
+      "last_position": 25,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "youkihira",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 27.0,
+      "last_position": 27,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Pinguino",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 28.0,
+      "last_position": 28,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Renzo Devigili",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 29.0,
+      "last_position": 29,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Patricio Portas",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 30.0,
+      "last_position": 30,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    }
+  ]
+}

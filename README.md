@@ -13,8 +13,8 @@ Quita lo de prioriza tracción y cuida neumático y que si siga diciendo lo de F
 - Volumen subirlo a 2 y promediar los demás.
 - El clima, viento, temperatura del asfalto no lo dice
 - Que costo tiene aproximado por vuelta con lo del asistente AI
-
 - Estado llantas
+- Revisión de fuel: En cualquier punto y sesión, si a la siguiente vuelta no paramos a repostar, es necesario priorizar mandar mensaje para cargar
 # AC Race Engineer MVP
 Race engineer por voz para Assetto Corsa (shared memory directo), con eventos de ritmo/combustible, asistente IA y feedback automatico.
 
@@ -83,6 +83,32 @@ python app.py
 
 - `Informe` / `Briefing` / `Situación general`
   - Mismo briefing que `Radio Check` (pista, sesión, ritmo, combustible, clima).
+
+### Resumen de sesión por radio
+
+- `Resumen`
+- `Resumen de sesión` / `Resumen de sesion`
+- `Resumen de carrera`
+- `Resumen de práctica` / `Resumen de practica`
+- `Resumen de qualy`
+- `Resumen final`
+- `Repaso general`
+  - Entrega un resumen de la sesión actual bajo demanda (sin esperar al cierre oficial).
+  - Usa la mejor información disponible de posición, mejor vuelta y rivales.
+
+### Box + setup feedback
+
+- `Box`
+- `Box box`
+- Variantes ASR aceptadas: `box bo`, `boxbo`, `boxx`, `vox`, `bos`
+  - Activa reporte de entrada a pits y evaluación de objetivos.
+  - Si hay recomendación de setup pendiente, la prioriza y pide validación.
+
+- Feedback de resultado tras probar ajuste (2 vueltas aprox):
+  - Mejora: `mejoró`, `mejor`, `va mejor`, `funcionó`, `gano tiempo`, `se siente mejor`, `más estable`
+  - Igual: `igual`, `sin cambio`, `sin cambios`, `sin diferencia`, `se siente igual`, `parecido`
+  - Empeora: `empeoró`, `peor`, `salió peor`, `no funcionó`, `no sirvió`, `más inestable`, `perdió agarre`
+  - Si detecta mejora, mantiene ese ajuste y puede proponer automáticamente la siguiente línea.
 
 - `Resetear hilo`
 - `Reiniciar hilo`

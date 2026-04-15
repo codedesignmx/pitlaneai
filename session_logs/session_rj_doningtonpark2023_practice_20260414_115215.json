@@ -1,0 +1,81 @@
+{
+  "timestamp": "2026-04-14T12:00:06.149071",
+  "track": "rj_doningtonpark2023",
+  "vehicle": "tatuusfa1",
+  "session_type": "practice",
+  "phase": "setup_test",
+  "setup_notes": "65cc2236cfa8 (TFA01-DONINGTONPARK-Q)",
+  "setup_iterations": [],
+  "snapshots": [
+    {
+      "lap_number": 7,
+      "lap_time": 66.679,
+      "fuel_used": 0.03408193588256836,
+      "fuel_remaining": 6.965918064117432,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "65cc2236cfa8",
+      "air_temp": null,
+      "asphalt_temp": null,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-14T11:52:53.609125"
+    },
+    {
+      "lap_number": 8,
+      "lap_time": 84.236,
+      "fuel_used": 2.447836399078369,
+      "fuel_remaining": 4.5180816650390625,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "65cc2236cfa8",
+      "air_temp": null,
+      "asphalt_temp": null,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-14T11:55:34.459437"
+    },
+    {
+      "lap_number": 9,
+      "lap_time": 84.236,
+      "fuel_used": 1.2618725299835205,
+      "fuel_remaining": 3.256209135055542,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "65cc2236cfa8",
+      "air_temp": null,
+      "asphalt_temp": null,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-14T11:56:40.214385"
+    },
+    {
+      "lap_number": 10,
+      "lap_time": 71.714,
+      "fuel_used": 1.2444887161254883,
+      "fuel_remaining": 2.0117204189300537,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "65cc2236cfa8",
+      "air_temp": null,
+      "asphalt_temp": null,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-14T11:57:52.036064"
+    },
+    {
+      "lap_number": 11,
+      "lap_time": 67.273,
+      "fuel_used": 1.2447548508644104,
+      "fuel_remaining": 0.7669655680656433,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "65cc2236cfa8",
+      "air_temp": null,
+      "asphalt_temp": null,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-14T11:58:59.275816"
+    }
+  ]
+}

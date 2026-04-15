@@ -1,0 +1,29 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-14 20:26:03
+Track: rj_doningtonpark2023
+Vehículo: tatuusfa1
+Sesión: practice
+Fase detectada: warm_up
+Vueltas totales: 1
+Setup: 8b0c1c9e7717 (TFA01-DONINGTONPARK-Q)
+
+TIEMPOS:
+  Mejor vuelta: 67.539s
+  Promedio: 67.539s
+  Muestras válidas: 1
+
+COMBUSTIBLE:
+  Consumo promedio: 0.046 L/vuelta
+  Muestras: 1
+
+CONDICIONES (inicio → fin):
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+14    67.539s    0.05L      8b0c1c9e7717
+
+================================================================================

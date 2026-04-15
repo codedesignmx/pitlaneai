@@ -63,12 +63,16 @@ class SetupCoach:
         self.last_issue: str | None = None
         self.iterations: list[SetupIteration] = []
         self._setup_lap_history: dict[str, dict[str, object]] = {}
+        self._parameter_outcomes: dict[str, dict[str, int]] = {}
+        self._parameter_limits: dict[str, dict[str, float]] = {}
 
     def reset_session_notes(self) -> None:
         self.last_recommendation = None
         self.last_issue = None
         self.iterations = []
         self._setup_lap_history = {}
+        self._parameter_outcomes = {}
+        self._parameter_limits = {}
 
     def export_iterations(self) -> list[dict[str, object]]:
         return [
@@ -88,6 +92,70 @@ class SetupCoach:
             }
             for item in self.iterations
         ]
+
+    def restore_state(self, data: dict) -> None:
+        """Restaura el estado del coach desde un checkpoint de sesión."""
+        self.active = bool(data.get("active", False))
+
+        self.iterations = []
+        for item in data.get("iterations", []):
+            try:
+                rng = item.get("range", [0, 10])
+                self.iterations.append(
+                    SetupIteration(
+                        timestamp_iso=str(item.get("timestamp", "")),
+                        setup_id=item.get("setup_id"),
+                        setup_label=item.get("setup_label"),
+                        issue=str(item.get("issue", "")),
+                        parameter=str(item.get("parameter", "")),
+                        direction=1 if item.get("direction") == "up" else -1,
+                        step=float(item.get("step", 1.0)),
+                        current_value=float(item.get("current_value", 0.0)),
+                        target_value=float(item.get("target_value", 0.0)),
+                        min_value=float(rng[0]),
+                        max_value=float(rng[1]),
+                        reason=str(item.get("reason", "")),
+                        outcome=str(item.get("outcome", "pending")),
+                    )
+                )
+            except Exception:
+                continue
+
+        raw_outcomes = data.get("parameter_outcomes", {})
+        if isinstance(raw_outcomes, dict):
+            self._parameter_outcomes = {
+                k: dict(v) for k, v in raw_outcomes.items() if isinstance(v, dict)
+            }
+
+        raw_limits = data.get("parameter_limits", {})
+        if isinstance(raw_limits, dict):
+            self._parameter_limits = {
+                k: {str(inner_k): float(inner_v) for inner_k, inner_v in v.items() if isinstance(inner_v, (int, float))}
+                for k, v in raw_limits.items()
+                if isinstance(v, dict)
+            }
+
+        raw_history = data.get("setup_lap_history", {})
+        if isinstance(raw_history, dict):
+            self._setup_lap_history = raw_history
+
+        rec_data = data.get("last_recommendation")
+        if rec_data is not None and isinstance(rec_data, dict):
+            try:
+                self.last_recommendation = SetupRecommendation(
+                    parameter=str(rec_data["parameter"]),
+                    direction=int(rec_data["direction"]),
+                    step=float(rec_data["step"]),
+                    reason=str(rec_data["reason"]),
+                    current_value=float(rec_data["current_value"]),
+                    target_value=float(rec_data["target_value"]),
+                    min_value=float(rec_data["min_value"]),
+                    max_value=float(rec_data["max_value"]),
+                )
+            except Exception:
+                self.last_recommendation = None
+        else:
+            self.last_recommendation = None
 
     def update_from_setup(self, setup_info: SetupInfo) -> None:
         self.current_setup_id = setup_info.setup_id
@@ -143,18 +211,19 @@ class SetupCoach:
         self.last_recommendation = None
         return "Setup coach desactivado."
 
-    def process_feedback(self, text: str) -> str:
-        if not self.active:
-            return "Setup coach inactivo. Di iniciar setup coach."
-
+    def process_feedback(self, text: str, session_state: "SessionState | None" = None) -> str:
         t = (text or "").lower()
 
-        if self.last_recommendation is not None and any(k in t for k in ("mejor", "mejoró", "mejoro")):
-            return self._handle_outcome("better")
-        if self.last_recommendation is not None and "igual" in t:
-            return self._handle_outcome("same")
-        if self.last_recommendation is not None and any(k in t for k in ("peor", "empeor", "empeoró", "empeoro")):
-            return self._handle_outcome("worse")
+        # Permitir validar outcomes de un ajuste pendiente aunque el coach
+        # no se haya iniciado manualmente en esta sesión.
+        has_pending_recommendation = self.last_recommendation is not None
+        if not self.active and not has_pending_recommendation:
+            return "Setup coach inactivo. Di iniciar setup coach."
+
+        if self.last_recommendation is not None:
+            outcome = self._detect_outcome(t)
+            if outcome is not None:
+                return self._handle_outcome(outcome, session_state=session_state)
 
         issue = self._detect_issue(t)
         if issue is None:
@@ -248,11 +317,24 @@ class SetupCoach:
         if session_type == "practice":
             parts: list[str] = []
             if current_eval is None:
-                parts.append(
-                    "Objetivo setup: aún no hay suficientes vueltas para evaluar. Primero valida el pico de qualy con dos vueltas limpias."
-                )
+                lap_count = len(session_state.laps) if session_state is not None else 0
+                if lap_count == 0:
+                    parts.append(
+                        "Objetivo setup: plan inicial, sal con esta base y completa dos vueltas limpias para validar el pico de qualy; después hacemos una tanda de cuatro vueltas para validar ritmo de carrera."
+                    )
+                elif lap_count < 2:
+                    parts.append(
+                        "Objetivo setup: completa dos vueltas limpias para validar el pico de qualy; luego pasamos a una tanda de cuatro vueltas para validar ritmo de carrera."
+                    )
+                else:
+                    parts.append(
+                        "Objetivo setup: cierra la validación de qualy y luego confirma el ritmo de carrera con una tanda de cuatro vueltas."
+                    )
             else:
                 parts.append(self._build_practice_guidance(current_eval, role))
+                auto_plan = self.build_automatic_recommendation(session_state)
+                if auto_plan:
+                    parts.append(auto_plan)
             if best_eval is not None:
                 parts.append(self._build_best_setup_note(best_eval))
             if limit_note:
@@ -419,19 +501,34 @@ class SetupCoach:
         joined = ", ".join(unique[:2])
         return f"Atención a umbrales: ya rozas {joined}; no conviene seguir en esa dirección sin cambiar de parámetro o de base."
 
-    def _handle_outcome(self, outcome: str) -> str:
+    def _handle_outcome(self, outcome: str, session_state: "SessionState | None" = None) -> str:
         rec = self.last_recommendation
         if rec is None:
             return "No tengo ajuste pendiente para evaluar."
+
+        self._register_parameter_outcome(rec, outcome)
 
         if self.iterations and self.iterations[-1].outcome == "pending":
             self.iterations[-1].outcome = outcome
 
         if outcome == "better":
+            confirmed_parameter = rec.parameter
+            confirmed_value = rec.target_value
             self.last_recommendation = None
+            next_step = ""
+            if session_state is not None:
+                next_step = self.build_automatic_recommendation(
+                    session_state,
+                    excluded_parameters={confirmed_parameter},
+                )
+            if next_step:
+                return (
+                    f"Perfecto, se confirma mejora. Mantén {confirmed_parameter} en {confirmed_value:.0f}. "
+                    f"{next_step}"
+                )
             return (
-                "Perfecto, se confirma mejora. Mantén ese ajuste y dime el siguiente síntoma "
-                "si quieres afinar más."
+                f"Perfecto, se confirma mejora. Mantén {confirmed_parameter} en {confirmed_value:.0f}. "
+                "De momento no conviene forzar otra línea sobre ese mismo parámetro."
             )
 
         if outcome == "same":
@@ -449,6 +546,163 @@ class SetupCoach:
             f"Empeoró. Revierte hacia {reverse_target:.0f} en {rec.parameter} y descartamos esa línea. "
             "Pásame otra sensación para proponer alternativa."
         )
+
+    def build_automatic_recommendation(
+        self,
+        session_state: "SessionState | None" = None,
+        excluded_parameters: set[str] | None = None,
+    ) -> str:
+        """Propone automáticamente el siguiente ajuste en práctica.
+
+        Usa la fase de validación actual (qualy/race), respeta límites de parámetro
+        y evita insistir en parámetros con historial negativo en la sesión.
+        """
+        if session_state is None or session_state.last_snapshot is None:
+            return ""
+        if session_state.last_snapshot.session_type != "practice":
+            return ""
+
+        # No proponer una nueva línea si hay un cambio pendiente de evaluación.
+        if self.iterations and self.iterations[-1].outcome == "pending":
+            last = self.iterations[-1]
+            return (
+                f"Ajuste pendiente: valida primero {last.parameter} en pista y confirma si mejoró, igual o peor."
+            )
+
+        current_eval = self._evaluate_current_setup()
+        if current_eval is None:
+            return ""
+
+        role = str(current_eval.get("role") or "unknown")
+        issue_candidates = self._build_auto_issue_candidates(current_eval, role)
+
+        chosen: SetupRecommendation | None = None
+        chosen_issue = ""
+        excluded = {item.strip().upper() for item in (excluded_parameters or set()) if item}
+        for issue in issue_candidates:
+            rec = self._recommend_for_issue(issue)
+            if rec is None:
+                continue
+
+            if rec.parameter.strip().upper() in excluded:
+                continue
+
+            score = self._parameter_score(rec.parameter)
+            # Si una línea fue claramente mala en esta sesión, no insistimos.
+            if score <= -2:
+                continue
+
+            if self._crosses_learned_limit(rec):
+                continue
+
+            chosen = rec
+            chosen_issue = issue
+            break
+
+        if chosen is None:
+            return ""
+
+        self.last_recommendation = chosen
+        self.last_issue = chosen_issue
+        # Modo auto: habilita aceptación de "mejoró/igual/empeoró" sin pedir start manual.
+        self.active = True
+        self.iterations.append(
+            SetupIteration(
+                timestamp_iso=datetime.now().isoformat(),
+                setup_id=self.current_setup_id,
+                setup_label=self.current_setup_label,
+                issue=f"auto_{chosen_issue}",
+                parameter=chosen.parameter,
+                direction=chosen.direction,
+                step=chosen.step,
+                current_value=chosen.current_value,
+                target_value=chosen.target_value,
+                min_value=chosen.min_value,
+                max_value=chosen.max_value,
+                reason=chosen.reason,
+            )
+        )
+
+        action = "sube" if chosen.direction > 0 else "baja"
+        return (
+            f"Recomendación automática: {action} {chosen.parameter} en {chosen.step:.0f} clic. "
+            f"Actual {chosen.current_value:.0f}, objetivo {chosen.target_value:.0f}, "
+            f"rango {chosen.min_value:.0f} a {chosen.max_value:.0f}. "
+            f"Motivo: {chosen.reason}. Haz dos vueltas y confirma mejoró, igual o peor."
+        )
+
+    @staticmethod
+    def _build_auto_issue_candidates(current_eval: dict[str, object], role: str) -> list[str]:
+        qualy_ok = bool(current_eval.get("qualy_validated"))
+        race_ok = bool(current_eval.get("race_validated"))
+        race_spread = float(current_eval.get("race_spread") or 0.0)
+        race_drop = float(current_eval.get("race_drop") or 0.0)
+        qualy_spread = float(current_eval.get("qualy_spread") or 0.0)
+
+        if not qualy_ok:
+            if qualy_spread > 0.6:
+                return ["braking_instability", "oversteer_entry", "understeer_entry"]
+            return ["understeer_entry", "oversteer_entry", "braking_instability"]
+
+        if not race_ok:
+            if race_drop > 0.8:
+                return ["poor_traction", "oversteer_exit", "understeer_exit"]
+            if race_spread > 1.0:
+                return ["oversteer_mid", "understeer_mid", "braking_instability"]
+            return ["understeer_mid", "oversteer_mid", "poor_traction"]
+
+        if role == "qualy":
+            return ["low_top_speed", "understeer_mid", "oversteer_mid"]
+        return ["understeer_mid", "low_top_speed", "poor_traction"]
+
+    def _register_parameter_outcome(self, recommendation: SetupRecommendation, outcome: str) -> None:
+        key = (recommendation.parameter or "").strip().upper()
+        if not key:
+            return
+        bucket = self._parameter_outcomes.setdefault(
+            key,
+            {"better": 0, "same": 0, "worse": 0},
+        )
+        if outcome in bucket:
+            bucket[outcome] += 1
+
+        limits = self._parameter_limits.setdefault(key, {})
+        target = float(recommendation.target_value)
+        if outcome == "better":
+            if recommendation.direction > 0:
+                limits["best_high"] = max(float(limits.get("best_high", target)), target)
+            else:
+                limits["best_low"] = min(float(limits.get("best_low", target)), target)
+        elif outcome == "worse":
+            if recommendation.direction > 0:
+                limits["worse_high"] = min(float(limits.get("worse_high", target)), target)
+            else:
+                limits["worse_low"] = max(float(limits.get("worse_low", target)), target)
+
+    def _parameter_score(self, parameter: str) -> int:
+        key = (parameter or "").strip().upper()
+        bucket = self._parameter_outcomes.get(key)
+        if not bucket:
+            return 0
+        return int(bucket.get("better", 0)) - int(bucket.get("worse", 0))
+
+    def _crosses_learned_limit(self, recommendation: SetupRecommendation) -> bool:
+        key = (recommendation.parameter or "").strip().upper()
+        limits = self._parameter_limits.get(key)
+        if not limits:
+            return False
+
+        target = float(recommendation.target_value)
+        if recommendation.direction > 0:
+            worse_high = limits.get("worse_high")
+            if isinstance(worse_high, (int, float)) and target >= float(worse_high) - 0.01:
+                return True
+        else:
+            worse_low = limits.get("worse_low")
+            if isinstance(worse_low, (int, float)) and target <= float(worse_low) + 0.01:
+                return True
+
+        return False
 
     def _detect_issue(self, t: str) -> str | None:
         if any(k in t for k in ("subvir", "understeer")):
@@ -476,6 +730,59 @@ class SetupCoach:
 
         if any(k in t for k in ("piano", "rebota", "bache")):
             return "kerb_bounce"
+
+        return None
+
+    @staticmethod
+    def _detect_outcome(text: str) -> str | None:
+        t = (text or "").lower()
+
+        worse_patterns = (
+            "empeor",
+            "peor",
+            "salio peor",
+            "salió peor",
+            "mas inestable",
+            "más inestable",
+            "perdio agarre",
+            "perdió agarre",
+            "no funciono",
+            "no funcionó",
+            "no sirvio",
+            "no sirvió",
+        )
+        if any(p in t for p in worse_patterns):
+            return "worse"
+
+        better_patterns = (
+            "mejor",
+            "mejoro",
+            "mejoró",
+            "mucho mejor",
+            "va mejor",
+            "se siente mejor",
+            "gano tiempo",
+            "ganó tiempo",
+            "mas estable",
+            "más estable",
+            "funciono",
+            "funcionó",
+        )
+        if any(p in t for p in better_patterns):
+            return "better"
+
+        same_patterns = (
+            "igual",
+            "sin cambio",
+            "sin cambios",
+            "sin diferencia",
+            "se siente igual",
+            "mas o menos igual",
+            "más o menos igual",
+            "parecido",
+        )
+        if any(p in t for p in same_patterns):
+            return "same"
 
         return None
 

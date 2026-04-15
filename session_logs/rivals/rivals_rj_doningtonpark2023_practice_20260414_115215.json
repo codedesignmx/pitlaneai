@@ -1,0 +1,98 @@
+{
+  "timestamp": "2026-04-14T12:00:06.152072",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260414_115215",
+  "rivals": [
+    {
+      "name": "Lenny Kinne",
+      "best_lap_seconds": 66.676,
+      "seen_samples": 59,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 59,
+      "behind_samples": 0
+    },
+    {
+      "name": "BANAN2355",
+      "best_lap_seconds": 66.361,
+      "seen_samples": 59,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 0
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.882,
+      "seen_samples": 59,
+      "avg_position": 4.0508474576271185,
+      "last_position": 3,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 59
+    },
+    {
+      "name": "Balogh",
+      "best_lap_seconds": 66.654,
+      "seen_samples": 59,
+      "avg_position": 4.559322033898305,
+      "last_position": 4,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 59
+    },
+    {
+      "name": "Paulo SENNA",
+      "best_lap_seconds": 65.472,
+      "seen_samples": 59,
+      "avg_position": 3.389830508474576,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 59
+    },
+    {
+      "name": "LEctric",
+      "best_lap_seconds": 87.524,
+      "seen_samples": 59,
+      "avg_position": 6.677966101694915,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 59
+    },
+    {
+      "name": "Guiller Varela",
+      "best_lap_seconds": null,
+      "seen_samples": 6,
+      "avg_position": 7.0,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 6
+    },
+    {
+      "name": "Player",
+      "best_lap_seconds": null,
+      "seen_samples": 59,
+      "avg_position": 6.762711864406779,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 59
+    },
+    {
+      "name": "jaime_mb_",
+      "best_lap_seconds": null,
+      "seen_samples": 59,
+      "avg_position": 7.762711864406779,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 59
+    }
+  ]
+}

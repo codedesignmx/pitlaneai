@@ -29,10 +29,17 @@ from ac_race_engineer.storage.results_summary import (
     load_latest_standings,
 )
 from ac_race_engineer.storage.logger import SessionLogger
+from ac_race_engineer.storage.performance_history import load_historical_pace_summary
 from ac_race_engineer.storage.rival_intel import RivalIntelStore
 from ac_race_engineer.storage.session_profile import SessionProfile
 from ac_race_engineer.storage.setup_registry import detect_current_setup, save_setup_document
 from ac_race_engineer.telemetry.ac_reader import AcSharedMemoryReader
+from ac_race_engineer.analysis.session_objectives import build_objectives
+from ac_race_engineer.storage.session_checkpoint import (
+    clear_checkpoint,
+    load_checkpoint,
+    save_checkpoint,
+)
 
 
 def run() -> None:
@@ -101,10 +108,24 @@ def run() -> None:
     last_gap_ahead_seconds: float | None = None
     last_gap_behind_seconds: float | None = None
     last_car_index_map: dict[int, str] = {}
+    local_player_name: str | None = None
     last_is_in_pit: bool | None = None
     active_session_key: tuple[str, str] | None = None
     saved_session_keys: set[tuple[str, str]] = set()
     active_setup_id = "default"
+    last_session_time_left_seconds: float | None = None
+
+    def _normalize_session_seconds_raw(seconds: float | None) -> float | None:
+        if seconds is None:
+            return None
+        value = float(seconds)
+        if value > 21600.0:
+            value = value / 1000.0
+        if value < 0.0:
+            value = 0.0
+        if value > 86400.0:
+            return None
+        return value
 
     def _finalize_session(snapshot_for_save: object | None = None) -> None:
         nonlocal pending_session_end_announce
@@ -157,6 +178,7 @@ def run() -> None:
         rivals_path = rival_intel.finalize_active_session()
         if rivals_path:
             print(f"[RIVALS] Sesión rival guardada: {rivals_path}")
+        clear_checkpoint()
         pending_session_end_announce = False
 
     try:
@@ -177,6 +199,8 @@ def run() -> None:
                     queue.push(pit_exit_msg)
 
             state.record_tick(snapshot)
+            if snapshot.session_time_left_seconds and snapshot.session_time_left_seconds > 0:
+                state.capture_session_time(snapshot.session_time_left_seconds)
 
             tick_events = detector.on_tick(snapshot)
             for event in tick_events:
@@ -214,6 +238,9 @@ def run() -> None:
                 session_profile.record_lap(lap_record, snapshot, setup_hash=active_setup_id)
                 session_profile.setup_notes = f"{active_setup_id} ({setup_info.setup_label})"
                 print(f"[SETUP] id={active_setup_id} label={setup_info.setup_label} doc={setup_doc}")
+
+                if current_track != "unknown" and current_session in {"practice", "qualifying", "race"}:
+                    save_checkpoint(current_track, current_session, state.laps, setup_coach)
                 print(
                     f"[LAP] lap={lap_record.lap_number} time={format_lap_time(lap_record.lap_time_seconds)} "
                     f"fuel_used={lap_record.fuel_used:.3f}"
@@ -274,11 +301,47 @@ def run() -> None:
                 print(f"[SETUP] sesión={current_session_key} id={active_setup_id} label={setup_info.setup_label} doc={setup_doc}")
                 active_session_key = current_session_key
 
+                # -- Objetivos de sesión --
+                state.session_lap_start_index = len(state.laps)
+                state.session_total_seconds = 0.0
+                state.active_objectives = None
+                state.objectives_intro_announced = False
+                state.session_best_standings = {}
+
+                # -- Restaurar checkpoint si la sesión ya estaba en curso --
+                checkpoint = load_checkpoint(current_track, current_session)
+                if checkpoint:
+                    laps_data = checkpoint.get("laps", [])
+                    state.restore_laps(laps_data)
+                    coach_data = checkpoint.get("setup_coach", {})
+                    if coach_data:
+                        setup_coach.restore_state(coach_data)
+                    print(f"[CHECKPOINT] Sesion restaurada: {len(laps_data)} vueltas, {len(setup_coach.iterations)} iteraciones de setup.")
+
+                session_minutes_estimate = (
+                    snapshot.session_time_left_seconds / 60.0
+                    if snapshot.session_time_left_seconds and snapshot.session_time_left_seconds > 10.0
+                    else 0.0
+                )
+                history_for_obj = load_historical_pace_summary(
+                    track_name=current_track,
+                    session_type=current_session,
+                )
+                obj_set = build_objectives(
+                    session_type=current_session,
+                    setup_info=setup_info,
+                    history=history_for_obj,
+                    session_total_minutes=session_minutes_estimate,
+                    setup_coach=setup_coach,
+                )
+                state.active_objectives = obj_set
+
             if current_session != last_session_type:
                 print(f"[SESSION] detectada: {current_session}")
                 last_session_type = current_session
                 standings_initialized = False
                 last_standings = []
+                local_player_name = None
                 state.update_live_timing([])
 
             # Optional live timing feed from results files (depends on server/build)
@@ -311,8 +374,25 @@ def run() -> None:
                     player_position=snapshot.player_position,
                 )
                 if current_standings:
+                    if local_player_name is None:
+                        player_row = next((row for row in current_standings if row.is_player), None)
+                        if player_row is not None:
+                            local_player_name = player_row.name
+                        elif snapshot.player_position > 0:
+                            by_pos = next(
+                                (row for row in current_standings if row.position == snapshot.player_position),
+                                None,
+                            )
+                            if by_pos is not None:
+                                local_player_name = by_pos.name
+
                     if standings_initialized:
-                        updates = detect_standings_updates(last_standings, current_standings)
+                        updates = detect_standings_updates(
+                            last_standings,
+                            current_standings,
+                            player_position=snapshot.player_position,
+                            player_name=local_player_name,
+                        )
                         for update_msg in updates:
                             print(f"[SPEAK] {update_msg}")
                             queue.push(update_msg)
@@ -325,8 +405,23 @@ def run() -> None:
                     last_standings_diag = now
                 last_standings_check = now
 
-            # Session-end trigger: transition from live to non-live status
-            if last_snapshot_status == "live" and snapshot.status != "live":
+            remaining_session_seconds = _normalize_session_seconds_raw(snapshot.session_time_left_seconds)
+
+            # Session-end trigger: solo cuando la sesión termina oficialmente,
+            # no por entrar a pits o cambiar setup en medio de práctica.
+            official_time_expired = (
+                last_session_time_left_seconds is not None
+                and last_session_time_left_seconds > 3.0
+                and remaining_session_seconds is not None
+                and remaining_session_seconds <= 1.0
+            )
+            official_end_state = (
+                last_snapshot_status == "live"
+                and snapshot.status != "live"
+                and remaining_session_seconds is not None
+                and remaining_session_seconds <= 5.0
+            )
+            if official_time_expired or official_end_state:
                 pending_session_end_announce = True
                 ended_session_type = session_profile.session_type
                 ended_session_position = snapshot.player_position
@@ -337,6 +432,7 @@ def run() -> None:
 
             last_snapshot_status = snapshot.status
             last_is_in_pit = snapshot.is_in_pit
+            last_session_time_left_seconds = remaining_session_seconds
 
             if now - last_debug_print >= SETTINGS.debug_print_interval_seconds:
                 stats = state.get_stats()

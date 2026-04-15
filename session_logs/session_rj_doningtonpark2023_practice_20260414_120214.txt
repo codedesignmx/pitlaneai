@@ -1,0 +1,38 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-14 12:10:03
+Track: rj_doningtonpark2023
+Vehículo: tatuusfa1
+Sesión: practice
+Fase detectada: setup_test
+Vueltas totales: 6
+Setup: 65cc2236cfa8 (TFA01-DONINGTONPARK-Q)
+
+TIEMPOS:
+  Mejor vuelta: 65.879s
+  Promedio: 107.150s
+  Muestras válidas: 6
+
+COMBUSTIBLE:
+  Consumo promedio: 1.049 L/vuelta
+  Muestras: 6
+
+CONDICIONES (inicio → fin):
+
+ITERACIONES SETUP COACH:
+  1. auto_oversteer_mid -> up WING_2 (1 clic), resultado: pending.
+     motivo: más estabilidad trasera en curva
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+12    67.273s    0.02L      65cc2236cfa8
+13    310.209s   1.20L      65cc2236cfa8
+14    65.879s    1.25L      65cc2236cfa8
+15    67.188s    1.27L      65cc2236cfa8
+16    66.006s    1.29L      65cc2236cfa8
+17    66.347s    1.25L      65cc2236cfa8
+
+================================================================================

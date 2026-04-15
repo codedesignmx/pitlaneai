@@ -148,10 +148,6 @@ class MicrophoneListener:
                 if len(frames) < 4:
                     continue
 
-                # Esperar a que el TTS termine antes de responder
-                while self._speaker.is_speaking and not self._stop_event.is_set():
-                    time.sleep(0.05)
-
                 # Reconocer y procesar
                 try:
                     audio_data = sr.AudioData(b"".join(frames), RATE, 2)
@@ -163,6 +159,8 @@ class MicrophoneListener:
                 except sr.RequestError as exc:
                     print(f"[MIC] Error de reconocimiento: {exc}")
                     self._speaker.speak("Hubo un problema con el reconocimiento de voz.")
+                except Exception as exc:
+                    print(f"[MIC] Error inesperado procesando comando PTT: {exc}")
         finally:
             p.terminate()
 
@@ -180,8 +178,9 @@ class MicrophoneListener:
                         self._r.energy_threshold = max(self._r.energy_threshold, 4500)
                         print("[MIC] Asistente activado...")
                         self._speaker.speak("Loud and Clear")
-                        if self._session_state is not None:
-                            briefing = self._session_state.build_radio_briefing()
+                        briefing = self._build_radio_check_briefing()
+                        if briefing:
+                            print(f"[SPEAK] {briefing}")
                             self._speaker.speak(briefing)
                 except sr.WaitTimeoutError:
                     pass
@@ -208,6 +207,8 @@ class MicrophoneListener:
             except sr.RequestError as exc:
                 print(f"[MIC] Error de reconocimiento: {exc}")
                 self._speaker.speak("Hubo un problema con el reconocimiento de voz.")
+            except Exception as exc:
+                print(f"[MIC] Error inesperado procesando comando: {exc}")
 
     # ------------------------------------------------------------------
     # Manejo de comandos (igual a manejar_comando de iris.py)
@@ -231,8 +232,36 @@ class MicrophoneListener:
             )
         )
 
+    def _build_radio_check_briefing(self) -> str:
+        if self._session_state is None:
+            return ""
+
+        state = self._session_state
+        in_pit = bool(state.last_snapshot and state.last_snapshot.is_in_pit)
+        if in_pit:
+            briefing = state.build_objective_briefing(
+                session_objectives=SETTINGS.session_objectives
+            )
+            if self._setup_coach is not None:
+                setup_goal = self._setup_coach.build_objective_guidance(state)
+                if setup_goal:
+                    briefing = f"{briefing} {setup_goal}"
+
+            # En pits, radio check entrega primero el briefing completo sin prefijos
+            # extra para evitar duplicar objetivos/referencias históricas.
+            if not state.objectives_intro_announced:
+                state.objectives_intro_announced = True
+
+            return briefing
+
+        return state.build_radio_briefing()
+
     def _handle_command(self, text: str) -> None:
         t = text.lower().strip()
+
+        # Prioridad radio: interrumpe TTS en curso y limpia backlog de telemetría.
+        if t:
+            self._speaker.interrupt_current_speech(clear_queue=True)
 
         # Detección de radio check - respuesta automática sin asistente
         if self._is_radio_check_command(t):
@@ -240,18 +269,8 @@ class MicrophoneListener:
             print("[MIC] Radio check detectado.")
             print("[SPEAK] Loud and Clear")
             self._speaker.speak("Loud and Clear")
-            if self._session_state is not None:
-                # Si estamos en pits, usar briefing objetivo completo
-                if self._session_state.last_snapshot and self._session_state.last_snapshot.is_in_pit:
-                    briefing = self._session_state.build_objective_briefing(
-                        session_objectives=SETTINGS.session_objectives
-                    )
-                    if self._setup_coach is not None:
-                        setup_goal = self._setup_coach.build_objective_guidance(self._session_state)
-                        if setup_goal:
-                            briefing = f"{briefing} {setup_goal}"
-                else:
-                    briefing = self._session_state.build_radio_briefing()
+            briefing = self._build_radio_check_briefing()
+            if briefing:
                 print(f"[SPEAK] {briefing}")
                 self._speaker.speak(briefing)
             return
@@ -344,6 +363,31 @@ class MicrophoneListener:
             self._speaker.speak(obj_report)
             return
 
+        if self._is_session_objectives_query(t):
+            self._ignore_pending_assistant_responses()
+            state = self._session_state
+            obj_set = state.active_objectives if state is not None else None
+            if obj_set is not None:
+                obj_set.evaluate(state, setup_coach=self._setup_coach)
+                obj_msg = f"Objetivos de sesión: {obj_set.voice_summary()}"
+            else:
+                obj_msg = "Sin objetivos definidos para esta sesión todavía."
+            print(f"[SPEAK] {obj_msg}")
+            self._speaker.speak(obj_msg)
+            return
+
+        if self._is_session_summary_query(t):
+            self._ignore_pending_assistant_responses()
+            if self._session_state is None:
+                summary_msg = "Sin telemetría todavía para resumen de sesión."
+                print(f"[SPEAK] {summary_msg}")
+                self._speaker.speak(summary_msg)
+                return
+            summary_msg = self._session_state.build_session_summary()
+            print(f"[SPEAK] {summary_msg}")
+            self._speaker.speak(summary_msg)
+            return
+
         if self._is_box_box_query(t):
             self._ignore_pending_assistant_responses()
             if self._session_state is None:
@@ -353,8 +397,15 @@ class MicrophoneListener:
                 return
             setup_feedback = ""
             if self._setup_coach is not None:
-                setup_feedback = self._setup_coach.build_setup_feedback(self._session_state)
-            pit_msg = self._session_state.build_box_box_report(setup_feedback=setup_feedback)
+                auto_setup = self._setup_coach.build_automatic_recommendation(self._session_state)
+                if auto_setup:
+                    setup_feedback = auto_setup
+                else:
+                    setup_feedback = self._setup_coach.build_setup_feedback(self._session_state)
+            pit_msg = self._session_state.build_box_box_report(
+                setup_feedback=setup_feedback,
+                setup_coach=self._setup_coach,
+            )
             print(f"[SPEAK] {pit_msg}")
             self._speaker.speak(pit_msg)
             return
@@ -395,7 +446,7 @@ class MicrophoneListener:
                 print(f"[SPEAK] {coach_msg}")
                 self._speaker.speak(coach_msg)
                 return
-            coach_msg = self._setup_coach.process_feedback(t)
+            coach_msg = self._setup_coach.process_feedback(t, session_state=self._session_state)
             print(f"[SPEAK] {coach_msg}")
             self._speaker.speak(coach_msg)
             return
@@ -453,11 +504,47 @@ class MicrophoneListener:
         )
 
     @staticmethod
-    def _is_box_box_query(text: str) -> bool:
+    def _is_session_objectives_query(text: str) -> bool:
         return any(
             token in text
             for token in (
+                "mis objetivos",
+                "objetivos de sesión",
+                "cuáles son los objetivos",
+                "cuales son los objetivos",
+                "qué objetivos tengo",
+                "que objetivos tengo",
+                "resumen de objetivos",
+            )
+        )
+
+    @staticmethod
+    def _is_session_summary_query(text: str) -> bool:
+        return any(
+            token in text
+            for token in (
+                "resumen",
+                "resumen de carrera",
+                "resumen de sesión",
+                "resumen de sesion",
+                "resumen de práctica",
+                "resumen de practica",
+                "resumen de qualy",
+                "resumen final",
+                "repaso general",
+            )
+        )
+
+    @staticmethod
+    def _is_box_box_query(text: str) -> bool:
+        normalized = (text or "").lower().strip()
+        if normalized in {"box", "boxx", "vox", "bos", "box box", "boxbox", "box bo", "boxbo"}:
+            return True
+        return any(
+            token in normalized
+            for token in (
                 "box box",
+                "box bo",
                 "voy a pits",
                 "voy a boxes",
                 "entro a pits",
@@ -547,12 +634,39 @@ class MicrophoneListener:
                 "punta",
                 "rebota",
                 "piano",
+                "mejor",
                 "mejoro",
                 "mejoró",
+                "va mejor",
+                "mucho mejor",
                 "empeoro",
                 "empeoró",
                 "peor",
                 "igual",
+                "funciono",
+                "funcionó",
+                "no sirvio",
+                "no sirvió",
+                "gano tiempo",
+                "ganó tiempo",
+                "mas estable",
+                "más estable",
+                "mas inestable",
+                "más inestable",
+                "perdio agarre",
+                "perdió agarre",
+                "no funciono",
+                "no funcionó",
+                "salio peor",
+                "salió peor",
+                "sin cambio",
+                "sin cambios",
+                "sin diferencia",
+                "se siente mejor",
+                "se siente igual",
+                "mas o menos igual",
+                "más o menos igual",
+                "parecido",
                 "feedback setup",
             )
         )

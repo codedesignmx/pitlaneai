@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-04-14T20:26:03.928845",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260414_202214",
+  "rivals": [
+    {
+      "name": "Joaquin Briso",
+      "best_lap_seconds": 69.626,
+      "seen_samples": 29,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 0
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.48,
+      "seen_samples": 29,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 29
+    },
+    {
+      "name": "Tiago Roel",
+      "best_lap_seconds": 66.768,
+      "seen_samples": 29,
+      "avg_position": 3.0,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 29
+    },
+    {
+      "name": "Jabberjaw",
+      "best_lap_seconds": 66.381,
+      "seen_samples": 29,
+      "avg_position": 4.0,
+      "last_position": 4,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 29
+    },
+    {
+      "name": "Alvaro Briso",
+      "best_lap_seconds": 68.395,
+      "seen_samples": 29,
+      "avg_position": 5.586206896551724,
+      "last_position": 5,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 29
+    },
+    {
+      "name": "wws",
+      "best_lap_seconds": 66.606,
+      "seen_samples": 29,
+      "avg_position": 5.413793103448276,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 29
+    },
+    {
+      "name": "The Grigs",
+      "best_lap_seconds": null,
+      "seen_samples": 29,
+      "avg_position": 7.0,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 29
+    }
+  ]
+}
