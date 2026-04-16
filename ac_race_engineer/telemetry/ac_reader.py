@@ -37,6 +37,36 @@ class _SPageFilePhysics(ctypes.Structure):
         ("rpm", ctypes.c_int),
         ("steer_angle", ctypes.c_float),
         ("speed_kmh", ctypes.c_float),
+        ("velocity", ctypes.c_float * 3),
+        ("acc_g", ctypes.c_float * 3),
+        ("wheel_slip", ctypes.c_float * 4),
+        ("wheel_load", ctypes.c_float * 4),
+        ("wheels_pressure", ctypes.c_float * 4),
+        ("wheel_angular_speed", ctypes.c_float * 4),
+        ("tyre_wear", ctypes.c_float * 4),
+        ("tyre_dirty_level", ctypes.c_float * 4),
+        ("tyre_core_temperature", ctypes.c_float * 4),
+        ("camber_rad", ctypes.c_float * 4),
+        ("suspension_travel", ctypes.c_float * 4),
+        ("drs", ctypes.c_float),
+        ("tc", ctypes.c_float),
+        ("heading", ctypes.c_float),
+        ("pitch", ctypes.c_float),
+        ("roll", ctypes.c_float),
+        ("cg_height", ctypes.c_float),
+        ("car_damage", ctypes.c_float * 5),
+        ("number_of_tyres_out", ctypes.c_int),
+        ("pit_limiter_on", ctypes.c_int),
+        ("abs", ctypes.c_float),
+        ("kers_charge", ctypes.c_float),
+        ("kers_input", ctypes.c_float),
+        ("auto_shifter_on", ctypes.c_int),
+        ("ride_height", ctypes.c_float * 2),
+        ("turbo_boost", ctypes.c_float),
+        ("ballast", ctypes.c_float),
+        ("air_density", ctypes.c_float),
+        ("air_temp", ctypes.c_float),
+        ("road_temp", ctypes.c_float),
     ]
 
 
@@ -203,13 +233,22 @@ class AcSharedMemoryReader:
         )
         grip_percent = round(grip_raw * 100.0, 1) if grip_raw is not None else None
         air_temp_c = self._optional_range(
-            float(getattr(graphics, "air_temp", 0.0)), -40.0, 80.0, reject_zero=True
+            float(getattr(physics, "air_temp", 0.0)), -40.0, 80.0, reject_zero=True
         )
+        if air_temp_c is None:
+            air_temp_c = self._optional_range(
+                float(getattr(graphics, "air_temp", 0.0)), -40.0, 80.0, reject_zero=True
+            )
+
         asphalt_temp_c = self._optional_range(
-            float(getattr(graphics, "road_temp", 0.0)), -40.0, 100.0, reject_zero=True
+            float(getattr(physics, "road_temp", 0.0)), -40.0, 100.0, reject_zero=True
         )
+        if asphalt_temp_c is None:
+            asphalt_temp_c = self._optional_range(
+                float(getattr(graphics, "road_temp", 0.0)), -40.0, 100.0, reject_zero=True
+            )
         wind_speed_kmh = self._optional_range(
-            float(getattr(graphics, "wind_speed", 0.0)), 0.0, 200.0, reject_zero=True
+            float(getattr(graphics, "wind_speed", 0.0)), 0.0, 200.0, reject_zero=False
         )
 
         self._warned_not_found = False

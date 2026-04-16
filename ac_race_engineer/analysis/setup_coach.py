@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import configparser
+import json
 import os
 from dataclasses import dataclass
 from datetime import datetime
@@ -65,6 +66,8 @@ class SetupCoach:
         self._setup_lap_history: dict[str, dict[str, object]] = {}
         self._parameter_outcomes: dict[str, dict[str, int]] = {}
         self._parameter_limits: dict[str, dict[str, float]] = {}
+        self._learning_store_path = Path("database/setup_learning.json")
+        self._global_learning: dict[str, object] = self._load_learning_store()
 
     def reset_session_notes(self) -> None:
         self.last_recommendation = None
@@ -320,15 +323,15 @@ class SetupCoach:
                 lap_count = len(session_state.laps) if session_state is not None else 0
                 if lap_count == 0:
                     parts.append(
-                        "Objetivo setup: plan inicial, sal con esta base y completa dos vueltas limpias para validar el pico de qualy; después hacemos una tanda de cuatro vueltas para validar ritmo de carrera."
+                        "Objetivo: sal con esta base y completa dos vueltas limpias para validar el pico de qualy."
                     )
                 elif lap_count < 2:
                     parts.append(
-                        "Objetivo setup: completa dos vueltas limpias para validar el pico de qualy; luego pasamos a una tanda de cuatro vueltas para validar ritmo de carrera."
+                        "Objetivo: completa dos vueltas limpias para validar el pico de qualy."
                     )
                 else:
                     parts.append(
-                        "Objetivo setup: cierra la validación de qualy y luego confirma el ritmo de carrera con una tanda de cuatro vueltas."
+                        "Objetivo: cierra la validación de qualy con una vuelta limpia y sin errores."
                     )
             else:
                 parts.append(self._build_practice_guidance(current_eval, role))
@@ -506,7 +509,7 @@ class SetupCoach:
         if rec is None:
             return "No tengo ajuste pendiente para evaluar."
 
-        self._register_parameter_outcome(rec, outcome)
+        self._register_parameter_outcome(rec, outcome, session_state=session_state)
 
         if self.iterations and self.iterations[-1].outcome == "pending":
             self.iterations[-1].outcome = outcome
@@ -587,12 +590,12 @@ class SetupCoach:
             if rec.parameter.strip().upper() in excluded:
                 continue
 
-            score = self._parameter_score(rec.parameter)
+            score = self._parameter_score(rec.parameter, session_state=session_state)
             # Si una línea fue claramente mala en esta sesión, no insistimos.
             if score <= -2:
                 continue
 
-            if self._crosses_learned_limit(rec):
+            if self._crosses_learned_limit(rec, session_state=session_state):
                 continue
 
             chosen = rec
@@ -655,7 +658,12 @@ class SetupCoach:
             return ["low_top_speed", "understeer_mid", "oversteer_mid"]
         return ["understeer_mid", "low_top_speed", "poor_traction"]
 
-    def _register_parameter_outcome(self, recommendation: SetupRecommendation, outcome: str) -> None:
+    def _register_parameter_outcome(
+        self,
+        recommendation: SetupRecommendation,
+        outcome: str,
+        session_state: "SessionState | None" = None,
+    ) -> None:
         key = (recommendation.parameter or "").strip().upper()
         if not key:
             return
@@ -679,27 +687,213 @@ class SetupCoach:
             else:
                 limits["worse_low"] = max(float(limits.get("worse_low", target)), target)
 
-    def _parameter_score(self, parameter: str) -> int:
+        self._register_global_outcome(recommendation, outcome, session_state=session_state)
+
+    def _parameter_score(self, parameter: str, session_state: "SessionState | None" = None) -> int:
         key = (parameter or "").strip().upper()
         bucket = self._parameter_outcomes.get(key)
-        if not bucket:
-            return 0
-        return int(bucket.get("better", 0)) - int(bucket.get("worse", 0))
+        session_score = 0
+        if bucket:
+            session_score = int(bucket.get("better", 0)) - int(bucket.get("worse", 0))
+        global_score = self._global_parameter_score(key, session_state=session_state)
+        return session_score + global_score
 
-    def _crosses_learned_limit(self, recommendation: SetupRecommendation) -> bool:
+    def _crosses_learned_limit(
+        self,
+        recommendation: SetupRecommendation,
+        session_state: "SessionState | None" = None,
+    ) -> bool:
         key = (recommendation.parameter or "").strip().upper()
         limits = self._parameter_limits.get(key)
-        if not limits:
-            return False
+        target = float(recommendation.target_value)
+
+        if limits:
+            if recommendation.direction > 0:
+                worse_high = limits.get("worse_high")
+                if isinstance(worse_high, (int, float)) and target >= float(worse_high) - 0.01:
+                    return True
+            else:
+                worse_low = limits.get("worse_low")
+                if isinstance(worse_low, (int, float)) and target <= float(worse_low) + 0.01:
+                    return True
+
+        if self._crosses_global_learned_limit(recommendation, session_state=session_state):
+            return True
+
+        return False
+
+    def _load_learning_store(self) -> dict[str, object]:
+        default_payload: dict[str, object] = {"version": 1, "contexts": {}}
+        try:
+            if not self._learning_store_path.exists():
+                return default_payload
+            with self._learning_store_path.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+            if not isinstance(data, dict):
+                return default_payload
+            if not isinstance(data.get("contexts"), dict):
+                data["contexts"] = {}
+            if "version" not in data:
+                data["version"] = 1
+            return data
+        except Exception:
+            return default_payload
+
+    def _save_learning_store(self) -> None:
+        try:
+            self._learning_store_path.parent.mkdir(parents=True, exist_ok=True)
+            with self._learning_store_path.open("w", encoding="utf-8") as f:
+                json.dump(self._global_learning, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
+
+    def _build_learning_context_key(self, session_state: "SessionState | None" = None) -> str:
+        car = (self.current_car_model or "unknown").strip().lower()
+        track = (self.current_track_name or "unknown").strip().lower()
+
+        phase = "unknown"
+        fuel_bucket = "unknown"
+        if session_state is not None and session_state.last_snapshot is not None:
+            snap = session_state.last_snapshot
+            phase = (snap.session_type or "unknown").strip().lower()
+            fuel = float(snap.fuel or 0.0)
+            if fuel < 10.0:
+                fuel_bucket = "low"
+            elif fuel < 25.0:
+                fuel_bucket = "mid"
+            else:
+                fuel_bucket = "high"
+
+        return f"{car}|{track}|{phase}|{fuel_bucket}"
+
+    def _build_learning_prefix(self) -> str:
+        car = (self.current_car_model or "unknown").strip().lower()
+        track = (self.current_track_name or "unknown").strip().lower()
+        return f"{car}|{track}|"
+
+    def _register_global_outcome(
+        self,
+        recommendation: SetupRecommendation,
+        outcome: str,
+        session_state: "SessionState | None" = None,
+    ) -> None:
+        key = (recommendation.parameter or "").strip().upper()
+        if not key:
+            return
+
+        contexts = self._global_learning.setdefault("contexts", {})
+        if not isinstance(contexts, dict):
+            return
+
+        ctx_key = self._build_learning_context_key(session_state=session_state)
+        ctx_payload = contexts.setdefault(ctx_key, {})
+        if not isinstance(ctx_payload, dict):
+            return
+
+        bucket = ctx_payload.setdefault(
+            key,
+            {
+                "better": 0,
+                "same": 0,
+                "worse": 0,
+                "best_high": None,
+                "best_low": None,
+                "worse_high": None,
+                "worse_low": None,
+            },
+        )
+        if not isinstance(bucket, dict):
+            return
+
+        if outcome in {"better", "same", "worse"}:
+            bucket[outcome] = int(bucket.get(outcome, 0)) + 1
 
         target = float(recommendation.target_value)
-        if recommendation.direction > 0:
-            worse_high = limits.get("worse_high")
-            if isinstance(worse_high, (int, float)) and target >= float(worse_high) - 0.01:
+        if outcome == "better":
+            if recommendation.direction > 0:
+                current = bucket.get("best_high")
+                bucket["best_high"] = target if current is None else max(float(current), target)
+            else:
+                current = bucket.get("best_low")
+                bucket["best_low"] = target if current is None else min(float(current), target)
+        elif outcome == "worse":
+            if recommendation.direction > 0:
+                current = bucket.get("worse_high")
+                bucket["worse_high"] = target if current is None else min(float(current), target)
+            else:
+                current = bucket.get("worse_low")
+                bucket["worse_low"] = target if current is None else max(float(current), target)
+
+        self._save_learning_store()
+
+    def _global_parameter_score(
+        self,
+        parameter_key: str,
+        session_state: "SessionState | None" = None,
+    ) -> int:
+        contexts = self._global_learning.get("contexts")
+        if not isinstance(contexts, dict):
+            return 0
+
+        exact_key = self._build_learning_context_key(session_state=session_state)
+        prefix = self._build_learning_prefix()
+
+        score = 0
+        for ctx_key, ctx_payload in contexts.items():
+            if not isinstance(ctx_payload, dict):
+                continue
+            if not str(ctx_key).startswith(prefix):
+                continue
+            bucket = ctx_payload.get(parameter_key)
+            if not isinstance(bucket, dict):
+                continue
+
+            local_score = int(bucket.get("better", 0)) - int(bucket.get("worse", 0))
+            weight = 3 if str(ctx_key) == exact_key else 1
+            score += weight * local_score
+
+        return score
+
+    def _crosses_global_learned_limit(
+        self,
+        recommendation: SetupRecommendation,
+        session_state: "SessionState | None" = None,
+    ) -> bool:
+        contexts = self._global_learning.get("contexts")
+        if not isinstance(contexts, dict):
+            return False
+
+        key = (recommendation.parameter or "").strip().upper()
+        if not key:
+            return False
+
+        prefix = self._build_learning_prefix()
+        target = float(recommendation.target_value)
+
+        worse_high_values: list[float] = []
+        worse_low_values: list[float] = []
+        for ctx_key, ctx_payload in contexts.items():
+            if not isinstance(ctx_payload, dict):
+                continue
+            if not str(ctx_key).startswith(prefix):
+                continue
+            bucket = ctx_payload.get(key)
+            if not isinstance(bucket, dict):
+                continue
+
+            wh = bucket.get("worse_high")
+            wl = bucket.get("worse_low")
+            if isinstance(wh, (int, float)):
+                worse_high_values.append(float(wh))
+            if isinstance(wl, (int, float)):
+                worse_low_values.append(float(wl))
+
+        if recommendation.direction > 0 and worse_high_values:
+            if target >= (min(worse_high_values) - 0.01):
                 return True
-        else:
-            worse_low = limits.get("worse_low")
-            if isinstance(worse_low, (int, float)) and target <= float(worse_low) + 0.01:
+
+        if recommendation.direction < 0 and worse_low_values:
+            if target <= (max(worse_low_values) + 0.01):
                 return True
 
         return False

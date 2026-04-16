@@ -1,0 +1,168 @@
+{
+  "timestamp": "2026-04-14T21:05:36.624641",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260414_204026",
+  "rivals": [
+    {
+      "name": "Joaquin Briso",
+      "best_lap_seconds": 68.123,
+      "seen_samples": 188,
+      "avg_position": 3.0531914893617023,
+      "last_position": 1,
+      "improvements": 4,
+      "ahead_samples": 40,
+      "behind_samples": 84
+    },
+    {
+      "name": "Alvaro Briso",
+      "best_lap_seconds": 67.171,
+      "seen_samples": 188,
+      "avg_position": 1.7872340425531914,
+      "last_position": 2,
+      "improvements": 4,
+      "ahead_samples": 107,
+      "behind_samples": 54
+    },
+    {
+      "name": "Obraian Quintillano",
+      "best_lap_seconds": 65.601,
+      "seen_samples": 188,
+      "avg_position": 5.308510638297872,
+      "last_position": 3,
+      "improvements": 3,
+      "ahead_samples": 0,
+      "behind_samples": 188
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.31,
+      "seen_samples": 188,
+      "avg_position": 3.9574468085106385,
+      "last_position": 4,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 175
+    },
+    {
+      "name": "elpatozz",
+      "best_lap_seconds": 66.653,
+      "seen_samples": 188,
+      "avg_position": 3.452127659574468,
+      "last_position": 5,
+      "improvements": 1,
+      "ahead_samples": 29,
+      "behind_samples": 115
+    },
+    {
+      "name": "The Grigs",
+      "best_lap_seconds": 66.71,
+      "seen_samples": 188,
+      "avg_position": 5.861702127659575,
+      "last_position": 6,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 177
+    },
+    {
+      "name": "Tiago Roel",
+      "best_lap_seconds": 65.744,
+      "seen_samples": 188,
+      "avg_position": 4.579787234042553,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 25,
+      "behind_samples": 134
+    },
+    {
+      "name": "Nico Zlemberger",
+      "best_lap_seconds": 66.029,
+      "seen_samples": 188,
+      "avg_position": 8.909574468085106,
+      "last_position": 8,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 188
+    },
+    {
+      "name": "Alex Love",
+      "best_lap_seconds": 74.372,
+      "seen_samples": 183,
+      "avg_position": 8.448087431693988,
+      "last_position": 9,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 183
+    },
+    {
+      "name": "Catriel",
+      "best_lap_seconds": 64.94,
+      "seen_samples": 113,
+      "avg_position": 10.557522123893806,
+      "last_position": 10,
+      "improvements": 3,
+      "ahead_samples": 0,
+      "behind_samples": 113
+    },
+    {
+      "name": "Nate McMaken",
+      "best_lap_seconds": 66.173,
+      "seen_samples": 135,
+      "avg_position": 11.222222222222221,
+      "last_position": 11,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 135
+    },
+    {
+      "name": "Kasidit Chittayasodhara",
+      "best_lap_seconds": 66.466,
+      "seen_samples": 86,
+      "avg_position": 12.69767441860465,
+      "last_position": 12,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 86
+    },
+    {
+      "name": "tomasforer117",
+      "best_lap_seconds": 71.838,
+      "seen_samples": 163,
+      "avg_position": 11.705521472392638,
+      "last_position": 13,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 163
+    },
+    {
+      "name": "Sanma",
+      "best_lap_seconds": null,
+      "seen_samples": 188,
+      "avg_position": 11.648936170212766,
+      "last_position": 14,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 188
+    },
+    {
+      "name": "Kauã Lima",
+      "best_lap_seconds": null,
+      "seen_samples": 28,
+      "avg_position": 15.0,
+      "last_position": 15,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 28
+    },
+    {
+      "name": "MonCat",
+      "best_lap_seconds": null,
+      "seen_samples": 169,
+      "avg_position": 14.065088757396449,
+      "last_position": 16,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 169
+    }
+  ]
+}

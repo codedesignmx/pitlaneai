@@ -13,7 +13,11 @@ from ac_race_engineer.analysis.time_format import (
 )
 from ac_race_engineer.analysis.session_objectives import SessionObjectiveSet
 from ac_race_engineer.storage.performance_history import load_historical_pace_summary
-from ac_race_engineer.storage.results_summary import StandingEntry, build_session_end_summary
+from ac_race_engineer.storage.results_summary import (
+    StandingEntry,
+    build_session_end_summary,
+    load_ac_log_weather_info,
+)
 from ac_race_engineer.storage.track_sections import label_for_position, load_sections
 from ac_race_engineer.telemetry.models import LapRecord, SessionStats, TelemetrySnapshot
 
@@ -32,6 +36,10 @@ class SessionState:
     session_best_standings: dict[str, StandingEntry] = field(default_factory=dict)
     live_gap_ahead_seconds: float | None = None
     live_gap_behind_seconds: float | None = None
+    live_track_grip_percent: float | None = None
+    live_air_temp_c: float | None = None
+    live_asphalt_temp_c: float | None = None
+    live_wind_speed_kmh: float | None = None
     active_setup_id: str | None = None
     active_setup_label: str | None = None
     _track_sections: list = field(default_factory=list)
@@ -188,6 +196,18 @@ class SessionState:
         if track_name:
             self._track_sections = load_sections(track_name, track_layout or "")
 
+    def update_live_weather(
+        self,
+        track_grip_percent: float | None = None,
+        air_temp_c: float | None = None,
+        asphalt_temp_c: float | None = None,
+        wind_speed_kmh: float | None = None,
+    ) -> None:
+        self.live_track_grip_percent = track_grip_percent
+        self.live_air_temp_c = air_temp_c
+        self.live_asphalt_temp_c = asphalt_temp_c
+        self.live_wind_speed_kmh = wind_speed_kmh
+
     def record_tick(self, snapshot: TelemetrySnapshot) -> None:
         """Registra muestra en vivo para análisis por microsectores."""
         self._record_trace_sample(snapshot)
@@ -211,7 +231,17 @@ class SessionState:
             "unknown": "sesión desconocida",
         }
         session_label = session_name_map.get(snap.session_type, "sesión desconocida")
-        where_label = "en pits" if snap.is_in_pit else "en pista"
+        # Algunos feeds tardan en marcar is_in_pit al arrancar; inferimos estado de boxes
+        # si el coche está completamente detenido y aún sin vuelta válida.
+        inferred_in_pit = bool(
+            snap.is_in_pit
+            or (
+                snap.speed_kmh <= 1.0
+                and snap.player_position <= 0
+                and stats.best_lap_seconds is None
+            )
+        )
+        where_label = "en pits" if inferred_in_pit else "en pista"
         track_label = snap.track_name if snap.track_name and snap.track_name != "unknown" else "pista desconocida"
 
         if stats.best_lap_seconds is None:
@@ -227,21 +257,56 @@ class SessionState:
                 f"{speak_laps_spanish(stats.estimated_laps_left)}."
             )
 
+        grip_value = (
+            snap.track_grip_percent
+            if snap.track_grip_percent is not None
+            else self.live_track_grip_percent
+        )
+        air_value = snap.air_temp_c if snap.air_temp_c is not None else self.live_air_temp_c
+        asphalt_value = (
+            snap.asphalt_temp_c if snap.asphalt_temp_c is not None else self.live_asphalt_temp_c
+        )
+        raw_wind_snapshot = snap.wind_speed_kmh
+        raw_wind_live = self.live_wind_speed_kmh
+        wind_value = None
+        if raw_wind_snapshot is not None and raw_wind_snapshot > 0.1:
+            wind_value = raw_wind_snapshot
+        elif raw_wind_live is not None and raw_wind_live > 0.1:
+            wind_value = raw_wind_live
+
+        ac_log_weather = load_ac_log_weather_info()
+        if air_value is None:
+            air_value = ac_log_weather.air_temp_c
+        if asphalt_value is None:
+            asphalt_value = ac_log_weather.asphalt_temp_c
+        if wind_value is None:
+            wind_value = ac_log_weather.wind_speed_kmh
+        elif ac_log_weather.wind_speed_kmh is not None and ac_log_weather.wind_speed_kmh > 0.1:
+            # Si shared memory reporta 0 pero el log live trae valor, priorizamos log.
+            wind_value = ac_log_weather.wind_speed_kmh
+
         weather_parts: list[str] = []
-        if snap.track_grip_percent is not None:
-            weather_parts.append(f"Grip de pista {snap.track_grip_percent:.0f} por ciento.")
-        if snap.air_temp_c is not None:
-            weather_parts.append(f"Aire {snap.air_temp_c:.0f} grados.")
-        if snap.asphalt_temp_c is not None:
-            weather_parts.append(f"Asfalto {snap.asphalt_temp_c:.0f} grados.")
-        if snap.wind_speed_kmh is not None:
-            weather_parts.append(f"Viento {snap.wind_speed_kmh:.0f} kilómetros por hora.")
+        if grip_value is not None:
+            weather_parts.append(f"Grip de pista {grip_value:.0f} por ciento.")
+        if air_value is not None:
+            weather_parts.append(f"Aire {air_value:.0f} grados.")
+        if asphalt_value is not None:
+            weather_parts.append(f"Asfalto {asphalt_value:.0f} grados.")
+        if wind_value is not None:
+            weather_parts.append(f"Viento {wind_value:.0f} kilómetros por hora.")
 
         weather_line = (
             " ".join(weather_parts)
             if weather_parts
             else "Meteo detallada no disponible en este feed de telemetría."
         )
+
+        if inferred_in_pit:
+            return (
+                f"Estamos en {track_label}. Sesión {session_label}, estado {where_label}. "
+                f"{weather_line}"
+            )
+
         return (
             f"Estamos en {track_label}. Sesión {session_label}, estado {where_label}. "
             f"{pace_line} {self._build_competitive_snapshot()} {fuel_line} {weather_line}"
@@ -489,8 +554,16 @@ class SessionState:
         total_seconds = self._normalize_session_seconds(self.session_total_seconds)
         remaining_seconds = self._normalize_session_seconds(snap.session_time_left_seconds)
 
+        # El feed de AC expone de forma confiable el tiempo restante; el "total" puede
+        # degradarse si nos conectamos tarde. Solo lo anunciamos cuando aporta contexto real.
+        total_is_reliable = bool(
+            total_seconds is not None
+            and total_seconds >= 600.0
+            and (remaining_seconds is None or (total_seconds - remaining_seconds) >= 60.0)
+        )
+
         time_bits: list[str] = []
-        if total_seconds is not None:
+        if total_is_reliable and total_seconds is not None:
             total_minutes = int(round(total_seconds / 60.0))
             total_word = "minuto" if total_minutes == 1 else "minutos"
             time_bits.append(f"tiempo total {total_minutes} {total_word}")
@@ -514,7 +587,10 @@ class SessionState:
         # Parte 3: Objetivo según sesión
         objective_line = ""
         configured_target_seconds = None
-        if session_objectives is not None:
+        if self.active_objectives is not None:
+            objective_line = self.active_objectives.voice_intro()
+
+        if not objective_line and session_objectives is not None:
             obj_data = session_objectives.get(session_type, session_objectives.get("unknown", {}))
             if obj_data:
                 goal = obj_data.get("goal", "")
@@ -602,6 +678,50 @@ class SessionState:
             fuel_line = ""
 
         reference_line = self._build_competitive_snapshot()
+
+        grip_value = (
+            snap.track_grip_percent
+            if snap.track_grip_percent is not None
+            else self.live_track_grip_percent
+        )
+        air_value = snap.air_temp_c if snap.air_temp_c is not None else self.live_air_temp_c
+        asphalt_value = (
+            snap.asphalt_temp_c if snap.asphalt_temp_c is not None else self.live_asphalt_temp_c
+        )
+        raw_wind_snapshot = snap.wind_speed_kmh
+        raw_wind_live = self.live_wind_speed_kmh
+        wind_value = None
+        if raw_wind_snapshot is not None and raw_wind_snapshot > 0.1:
+            wind_value = raw_wind_snapshot
+        elif raw_wind_live is not None and raw_wind_live > 0.1:
+            wind_value = raw_wind_live
+
+        ac_log_weather = load_ac_log_weather_info()
+        if air_value is None:
+            air_value = ac_log_weather.air_temp_c
+        if asphalt_value is None:
+            asphalt_value = ac_log_weather.asphalt_temp_c
+        if wind_value is None:
+            wind_value = ac_log_weather.wind_speed_kmh
+        elif ac_log_weather.wind_speed_kmh is not None and ac_log_weather.wind_speed_kmh > 0.1:
+            wind_value = ac_log_weather.wind_speed_kmh
+
+        weather_parts: list[str] = []
+        if grip_value is not None:
+            weather_parts.append(f"Grip de pista {grip_value:.0f} por ciento.")
+        if air_value is not None:
+            weather_parts.append(f"Aire {air_value:.0f} grados.")
+        if asphalt_value is not None:
+            weather_parts.append(f"Asfalto {asphalt_value:.0f} grados.")
+        if wind_value is not None:
+            weather_parts.append(f"Viento {wind_value:.0f} kilómetros por hora.")
+
+        weather_line = (
+            " ".join(weather_parts)
+            if weather_parts
+            else "Meteo detallada no disponible en este feed de telemetría."
+        )
+
         parts = [
             p
             for p in [
@@ -615,6 +735,7 @@ class SessionState:
                 setup_line,
                 reference_line,
                 fuel_line,
+                weather_line,
             ]
             if p
         ]
@@ -659,12 +780,17 @@ class SessionState:
         return " ".join(parts)
 
     def capture_session_time(self, seconds: float) -> bool:
-        """Registra el tiempo total de sesión en el primer tick válido.
+        """Registra una estimación del tiempo total de sesión.
 
-        Retorna True si fue la primera captura (útil para refinar objetivos).
+        Retorna True cuando mejora la mejor estimación previa.
         """
         normalized_seconds = self._normalize_session_seconds(seconds)
-        if self.session_total_seconds == 0.0 and normalized_seconds is not None and normalized_seconds > 5.0:
+        if normalized_seconds is None or normalized_seconds <= 5.0:
+            return False
+
+        # Conservamos el mayor valor observado de "time left" como mejor proxy
+        # de la duración total cuando no existe el campo explícito en el feed.
+        if normalized_seconds > (self.session_total_seconds + 5.0):
             self.session_total_seconds = normalized_seconds
             if self.active_objectives is not None:
                 self.active_objectives.update_session_time(normalized_seconds / 60.0)

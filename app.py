@@ -24,8 +24,10 @@ from ac_race_engineer.storage.results_summary import (
     build_session_end_summary,
     describe_standings_source,
     detect_standings_updates,
+    load_ac_log_weather_info,
     load_live_car_index_map,
     load_live_gap_info,
+    load_live_weather_info,
     load_latest_standings,
 )
 from ac_race_engineer.storage.logger import SessionLogger
@@ -105,6 +107,7 @@ def run() -> None:
     last_standings: list = []
     standings_initialized = False
     last_standings_diag = 0.0
+    last_weather_diag = 0.0
     last_gap_ahead_seconds: float | None = None
     last_gap_behind_seconds: float | None = None
     last_car_index_map: dict[int, str] = {}
@@ -159,6 +162,49 @@ def run() -> None:
         if objective_msg and objective_msg != "Sin métricas objetivo aún.":
             print(f"[SPEAK] {objective_msg}")
             queue.push(objective_msg)
+
+        good_review, bad_review = state._build_performance_review()
+        takeaways: list[str] = []
+        if good_review:
+            takeaways.append(f"Lo bueno: {good_review}.")
+        if bad_review:
+            takeaways.append(f"Lo malo: {bad_review}.")
+
+        if ended_session_type == "practice":
+            if stats.avg_fuel_per_lap is not None:
+                takeaways.append(
+                    f"Consumo base fijado en {stats.avg_fuel_per_lap:.3f} litros por vuelta."
+                )
+            best_setup_eval = setup_coach._pick_best_setup()
+            if best_setup_eval is not None:
+                best_setup_label = str(best_setup_eval.get("label") or "setup actual")
+                if best_setup_eval.get("qualy_validated"):
+                    takeaways.append(
+                        f"Para qualy, la mejor base provisional es {best_setup_label}."
+                    )
+                elif best_setup_eval.get("lap_count"):
+                    takeaways.append(
+                        f"Sigue evaluando {best_setup_label}; aún no pasa la validación completa para qualy."
+                    )
+
+        if ended_session_type == "race" and snapshot_for_save is not None and hasattr(snapshot_for_save, "fuel"):
+            final_fuel = float(getattr(snapshot_for_save, "fuel") or 0.0)
+            if stats.avg_fuel_per_lap is not None and stats.avg_fuel_per_lap > 0.0:
+                spare_laps = final_fuel / stats.avg_fuel_per_lap
+                if spare_laps >= 2.0:
+                    trim = max(0.0, final_fuel - stats.avg_fuel_per_lap)
+                    takeaways.append(
+                        f"Sobró combustible al final; la próxima carrera puedes recortar aproximadamente {trim:.1f} litros."
+                    )
+                elif spare_laps <= 0.6:
+                    takeaways.append(
+                        "Fuel muy justo al final; añade un pequeño margen de seguridad en la próxima carrera."
+                    )
+
+        takeaway_msg = " ".join(takeaways).strip()
+        if takeaway_msg:
+            print(f"[SPEAK] {takeaway_msg}")
+            queue.push(takeaway_msg)
 
         standings = load_latest_standings(
             SETTINGS.results_search_dirs,
@@ -307,6 +353,7 @@ def run() -> None:
                 state.active_objectives = None
                 state.objectives_intro_announced = False
                 state.session_best_standings = {}
+                state.update_live_weather()
 
                 # -- Restaurar checkpoint si la sesión ya estaba en curso --
                 checkpoint = load_checkpoint(current_track, current_session)
@@ -362,6 +409,23 @@ def run() -> None:
                     SETTINGS.results_search_dirs,
                     expected_session_type=current_session,
                 )
+                weather_info = load_live_weather_info(
+                    SETTINGS.results_search_dirs,
+                    expected_session_type=current_session,
+                )
+                ac_log_weather = load_ac_log_weather_info()
+                grip_value = weather_info.track_grip_percent
+                air_value = weather_info.air_temp_c
+                asphalt_value = weather_info.asphalt_temp_c
+                wind_value = weather_info.wind_speed_kmh
+
+                if air_value is None:
+                    air_value = ac_log_weather.air_temp_c
+                if asphalt_value is None:
+                    asphalt_value = ac_log_weather.asphalt_temp_c
+                if wind_value is None:
+                    wind_value = ac_log_weather.wind_speed_kmh
+
                 last_gap_ahead_seconds = gap_info.gap_ahead_seconds
                 last_gap_behind_seconds = gap_info.gap_behind_seconds
                 state.update_live_timing(
@@ -369,6 +433,21 @@ def run() -> None:
                     gap_ahead_seconds=last_gap_ahead_seconds,
                     gap_behind_seconds=last_gap_behind_seconds,
                 )
+                state.update_live_weather(
+                    track_grip_percent=grip_value,
+                    air_temp_c=air_value,
+                    asphalt_temp_c=asphalt_value,
+                    wind_speed_kmh=wind_value,
+                )
+                if now - last_weather_diag >= 30.0:
+                    print(
+                        "[WEATHER] "
+                        f"snap(air={snapshot.air_temp_c}, asf={snapshot.asphalt_temp_c}, wind={snapshot.wind_speed_kmh}) "
+                        f"json(air={weather_info.air_temp_c}, asf={weather_info.asphalt_temp_c}, wind={weather_info.wind_speed_kmh}) "
+                        f"ac_log(air={ac_log_weather.air_temp_c}, asf={ac_log_weather.asphalt_temp_c}, wind={ac_log_weather.wind_speed_kmh}) "
+                        f"final(air={air_value}, asf={asphalt_value}, wind={wind_value})"
+                    )
+                    last_weather_diag = now
                 rival_intel.observe(
                     standings=current_standings,
                     player_position=snapshot.player_position,

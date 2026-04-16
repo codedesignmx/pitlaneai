@@ -10,6 +10,8 @@ class HistoricalPaceSummary:
     own_best_seconds: float | None = None
     own_best_setup_id: str | None = None
     own_best_setup_label: str | None = None
+    own_avg_fuel_per_lap: float | None = None
+    own_fuel_sample_count: int = 0
     rival_best_name: str | None = None
     rival_best_seconds: float | None = None
 
@@ -39,6 +41,7 @@ def _load_own_history(
         return
 
     best_by_setup: dict[str, float] = {}
+    fuel_samples: list[float] = []
 
     for path in root.glob("session_*.json"):
         try:
@@ -53,7 +56,7 @@ def _load_own_history(
         payload_track = str(payload.get("track") or "unknown")
         payload_session = str(payload.get("session_type") or "unknown")
 
-        if payload_track != track_name or payload_session != session_type:
+        if payload_track != track_name:
             continue
 
         snapshots = payload.get("snapshots")
@@ -63,6 +66,14 @@ def _load_own_history(
         for snap in snapshots:
             if not isinstance(snap, dict):
                 continue
+
+            fuel_used = snap.get("fuel_used")
+            if isinstance(fuel_used, (int, float)) and float(fuel_used) > 0.0:
+                fuel_samples.append(float(fuel_used))
+
+            if payload_session != session_type:
+                continue
+
             lap_time = snap.get("lap_time")
             if not isinstance(lap_time, (int, float)):
                 continue
@@ -87,6 +98,10 @@ def _load_own_history(
         best_setup_id = min(candidate_ids, key=lambda sid: best_by_setup[sid])
         summary.own_best_setup_id = best_setup_id
         summary.own_best_setup_label = _load_setup_label(best_setup_id, session_logs_dir=session_logs_dir)
+
+    if fuel_samples:
+        summary.own_avg_fuel_per_lap = sum(fuel_samples) / len(fuel_samples)
+        summary.own_fuel_sample_count = len(fuel_samples)
 
 
 def _load_rival_history(

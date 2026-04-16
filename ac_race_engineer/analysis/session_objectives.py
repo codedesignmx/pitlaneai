@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 @dataclass
 class SessionObjective:
     id: str
-    category: str        # "pace" | "consistency" | "stint" | "setup"
+    category: str        # "fuel" | "pace" | "consistency" | "stint" | "setup"
     target_label: str    # frase corta para TTS
     target_value: float | None
     priority: int        # 1 = alta, 2 = media
@@ -82,7 +82,7 @@ class SessionObjectiveSet:
             if 30.0 <= lap.lap_time_seconds <= 600.0
         ]
         for obj in self.objectives:
-            _evaluate_objective(obj, session_laps, setup_coach)
+            _evaluate_objective(obj, session_laps, state, setup_coach)
 
     # ------------------------------------------------------------------
     # Voz
@@ -132,9 +132,12 @@ class SessionObjectiveSet:
 def _evaluate_objective(
     obj: SessionObjective,
     session_laps: list[float],
+    state: "SessionState",
     setup_coach: "SetupCoach | None",
 ) -> None:
-    if obj.category == "pace":
+    if obj.category == "fuel":
+        _eval_fuel(obj, state)
+    elif obj.category == "pace":
         _eval_pace(obj, session_laps)
     elif obj.category == "consistency":
         _eval_consistency(obj, session_laps)
@@ -142,6 +145,25 @@ def _evaluate_objective(
         _eval_stint(obj, session_laps)
     elif obj.category == "setup":
         _eval_setup(obj, setup_coach)
+
+
+def _eval_fuel(obj: SessionObjective, state: "SessionState") -> None:
+    session_laps = state.laps[state.session_lap_start_index :]
+    valid_samples = [lap.fuel_used for lap in session_laps if lap.fuel_used is not None and lap.fuel_used > 0.0]
+    required_samples = max(2, int(obj.target_value)) if obj.target_value is not None else 3
+
+    if len(valid_samples) < required_samples:
+        obj.met = False
+        obj.feedback = (
+            f"Necesitas {required_samples} vueltas con consumo válido; llevas {len(valid_samples)}"
+        )
+        return
+
+    avg_fuel = sum(float(sample) for sample in valid_samples) / len(valid_samples)
+    obj.met = True
+    obj.feedback = (
+        f"Consumo base fijado en {avg_fuel:.3f} litros por vuelta con {len(valid_samples)} muestras"
+    )
 
 
 def _eval_pace(obj: SessionObjective, laps: list[float]) -> None:
@@ -286,10 +308,29 @@ def _build_practice(
     setup_coach: "SetupCoach | None",
 ) -> None:
     own_best = history.own_best_seconds if history else None
+    historical_fuel = history.own_avg_fuel_per_lap if history else None
+    historical_fuel_samples = history.own_fuel_sample_count if history else 0
     rival_best = history.rival_best_seconds if history else None
     rival_name = (history.rival_best_name or "rival") if history else "rival"
+    has_fuel_history = historical_fuel is not None and historical_fuel_samples >= 3
 
     ctx_parts: list[str] = []
+
+    if not has_fuel_history:
+        obj_set.objectives.append(
+            SessionObjective(
+                id="fuel_calibration",
+                category="fuel",
+                target_label="Salir con tanque lleno y completar 3 vueltas limpias para medir consumo por vuelta",
+                target_value=3.0,
+                priority=1,
+            )
+        )
+        ctx_parts.append("Sin histórico fiable de combustible; prioridad uno, calibrar consumo con tanque lleno")
+    else:
+        ctx_parts.append(
+            f"Consumo histórico {historical_fuel:.3f} litros por vuelta con {historical_fuel_samples} muestras"
+        )
 
     # --- 1. Objetivo de ritmo ---
     if own_best is not None:
@@ -302,7 +343,7 @@ def _build_practice(
                 category="pace",
                 target_label=f"Bajar de {speak_lap_time_spanish(pace_target)}",
                 target_value=pace_target,
-                priority=1,
+                priority=2 if not has_fuel_history else 1,
             )
         )
         ctx_parts.append(f"Referencia propia previa {speak_lap_time_spanish(own_best)}")
@@ -314,7 +355,7 @@ def _build_practice(
                 category="pace",
                 target_label=f"Ritmo por debajo de {speak_lap_time_spanish(pace_target)}",
                 target_value=pace_target,
-                priority=1,
+                priority=2 if not has_fuel_history else 1,
             )
         )
         ctx_parts.append(f"Sin referencia propia; referencia rival {speak_lap_time_spanish(rival_best)}")
@@ -325,7 +366,7 @@ def _build_practice(
                 category="pace",
                 target_label="Establecer primera referencia de ritmo con al menos 2 vueltas",
                 target_value=None,
-                priority=1,
+                priority=2 if not has_fuel_history else 1,
             )
         )
         ctx_parts.append("Primera sesión en este circuito; establece referencia base")
@@ -351,7 +392,7 @@ def _build_practice(
             category="consistency",
             target_label="Dos vueltas consecutivas dentro de 0.35 segundos",
             target_value=0.35,
-            priority=1,
+            priority=2 if not has_fuel_history else 1,
         )
     )
 
@@ -368,7 +409,7 @@ def _build_practice(
         )
 
     # --- 4. Setup coach — si hay tiempo para probar cambios ---
-    if session_total_minutes == 0.0 or session_total_minutes >= 20.0:
+    if has_fuel_history and (session_total_minutes == 0.0 or session_total_minutes >= 20.0):
         setup_role = "unknown"
         if setup_coach is not None and setup_coach.current_setup_label:
             setup_role = setup_coach._classify_setup_role(setup_coach.current_setup_label)

@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-04-16T16:25:18.223072",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260416_161617",
+  "rivals": [
+    {
+      "name": "SGT.왕박살",
+      "best_lap_seconds": 67.092,
+      "seen_samples": 68,
+      "avg_position": 1.6764705882352942,
+      "last_position": 1,
+      "improvements": 1,
+      "ahead_samples": 22,
+      "behind_samples": 1
+    },
+    {
+      "name": "studio9guy",
+      "best_lap_seconds": null,
+      "seen_samples": 68,
+      "avg_position": 1.3235294117647058,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 45,
+      "behind_samples": 0
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 67.313,
+      "seen_samples": 68,
+      "avg_position": 3.1470588235294117,
+      "last_position": 3,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 68
+    },
+    {
+      "name": "Victor Roca",
+      "best_lap_seconds": 79.996,
+      "seen_samples": 68,
+      "avg_position": 6.455882352941177,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 68
+    },
+    {
+      "name": "Jacques Delisle",
+      "best_lap_seconds": null,
+      "seen_samples": 68,
+      "avg_position": 3.8676470588235294,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 68
+    },
+    {
+      "name": "Emilio Melgar",
+      "best_lap_seconds": null,
+      "seen_samples": 68,
+      "avg_position": 5.705882352941177,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 68
+    },
+    {
+      "name": "Andre",
+      "best_lap_seconds": null,
+      "seen_samples": 68,
+      "avg_position": 6.705882352941177,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 68
+    },
+    {
+      "name": "Damir",
+      "best_lap_seconds": null,
+      "seen_samples": 68,
+      "avg_position": 7.705882352941177,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 68
+    },
+    {
+      "name": "dumbo",
+      "best_lap_seconds": null,
+      "seen_samples": 68,
+      "avg_position": 8.705882352941176,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 68
+    },
+    {
+      "name": "Rahknov",
+      "best_lap_seconds": null,
+      "seen_samples": 68,
+      "avg_position": 9.705882352941176,
+      "last_position": 10,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 68
+    }
+  ]
+}

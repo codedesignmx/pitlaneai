@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-04-16T16:03:01.479863",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260416_155508",
+  "rivals": [
+    {
+      "name": "studio9guy",
+      "best_lap_seconds": null,
+      "seen_samples": 59,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 30,
+      "behind_samples": 0
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 67.884,
+      "seen_samples": 59,
+      "avg_position": 3.9322033898305087,
+      "last_position": 2,
+      "improvements": 1,
+      "ahead_samples": 12,
+      "behind_samples": 29
+    },
+    {
+      "name": "Jacques Delisle",
+      "best_lap_seconds": null,
+      "seen_samples": 59,
+      "avg_position": 2.288135593220339,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 30,
+      "behind_samples": 29
+    },
+    {
+      "name": "Andre",
+      "best_lap_seconds": null,
+      "seen_samples": 59,
+      "avg_position": 3.694915254237288,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 30,
+      "behind_samples": 29
+    },
+    {
+      "name": "Damir",
+      "best_lap_seconds": null,
+      "seen_samples": 59,
+      "avg_position": 4.694915254237288,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 30,
+      "behind_samples": 29
+    },
+    {
+      "name": "dumbo",
+      "best_lap_seconds": null,
+      "seen_samples": 59,
+      "avg_position": 5.694915254237288,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 30,
+      "behind_samples": 29
+    },
+    {
+      "name": "Rahknov",
+      "best_lap_seconds": null,
+      "seen_samples": 59,
+      "avg_position": 6.694915254237288,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 18,
+      "behind_samples": 29
+    }
+  ]
+}

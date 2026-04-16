@@ -1,0 +1,98 @@
+{
+  "timestamp": "2026-04-14T20:40:19.644144",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260414_202808",
+  "rivals": [
+    {
+      "name": "Tiago Roel",
+      "best_lap_seconds": 65.744,
+      "seen_samples": 91,
+      "avg_position": 1.2197802197802199,
+      "last_position": 1,
+      "improvements": 1,
+      "ahead_samples": 81,
+      "behind_samples": 6
+    },
+    {
+      "name": "elpatozz",
+      "best_lap_seconds": 67.526,
+      "seen_samples": 88,
+      "avg_position": 2.4886363636363638,
+      "last_position": 2,
+      "improvements": 1,
+      "ahead_samples": 4,
+      "behind_samples": 35
+    },
+    {
+      "name": "Alvaro Briso",
+      "best_lap_seconds": 68.32,
+      "seen_samples": 85,
+      "avg_position": 3.3529411764705883,
+      "last_position": 3,
+      "improvements": 4,
+      "ahead_samples": 4,
+      "behind_samples": 73
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.794,
+      "seen_samples": 91,
+      "avg_position": 3.4725274725274726,
+      "last_position": 4,
+      "improvements": 1,
+      "ahead_samples": 3,
+      "behind_samples": 72
+    },
+    {
+      "name": "Joaquin Briso",
+      "best_lap_seconds": 70.098,
+      "seen_samples": 88,
+      "avg_position": 4.3522727272727275,
+      "last_position": 5,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 74
+    },
+    {
+      "name": "Obraian Quintillano",
+      "best_lap_seconds": 67.026,
+      "seen_samples": 47,
+      "avg_position": 6.48936170212766,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 47
+    },
+    {
+      "name": "The Grigs",
+      "best_lap_seconds": 68.639,
+      "seen_samples": 32,
+      "avg_position": 7.5,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 32
+    },
+    {
+      "name": "Nico Zlemberger",
+      "best_lap_seconds": null,
+      "seen_samples": 12,
+      "avg_position": 7.75,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 12
+    },
+    {
+      "name": "Sanma",
+      "best_lap_seconds": null,
+      "seen_samples": 49,
+      "avg_position": 7.122448979591836,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 49
+    }
+  ]
+}

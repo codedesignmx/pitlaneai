@@ -173,7 +173,7 @@ class MicrophoneListener:
                     audio = self._r.listen(source, timeout=5, phrase_time_limit=4)
                     text = self._r.recognize_google(audio, language="es-ES")
                     print(f"[MIC] keyword escuché: '{text}'")
-                    if KEYWORD in text.lower():
+                    if self._is_radio_check_command(text):
                         self._activated = True
                         self._r.energy_threshold = max(self._r.energy_threshold, 4500)
                         print("[MIC] Asistente activado...")
@@ -218,19 +218,50 @@ class MicrophoneListener:
     def _is_radio_check_command(text: str) -> bool:
         """Detecta radio check incluyendo variantes frecuentes de ASR."""
         normalized = (text or "").lower().strip()
+        normalized = normalized.translate(str.maketrans("áéíóúü", "aeiouu"))
+        normalized = re.sub(r"[^a-z0-9\s]", " ", normalized)
+        normalized = re.sub(r"\s+", " ", normalized).strip()
+
+        if not normalized:
+            return False
+
+        # En PTT suele recortarse a "radio"; lo aceptamos como activación.
+        if normalized == "radio":
+            return True
+
         if "radio check" in normalized:
             return True
-        # Variantes comunes que reconoce mal Google Speech en espanol.
-        return any(
-            token in normalized
-            for token in (
-                "radio chek",
-                "radio cheque",
-                "radio chec",
-                "radio sheck",
-                "radio shrek",
-            )
-        )
+
+        if not normalized.startswith("radio"):
+            return False
+
+        tail = normalized[len("radio") :].strip()
+        if not tail:
+            return True
+
+        if tail in {
+            "check",
+            "chek",
+            "chec",
+            "che",
+            "cheque",
+            "sheck",
+            "shrek",
+            "tek",
+            "tec",
+            "tech",
+        }:
+            return True
+
+        # Cubre recortes/fonética de ASR: "ch", "chee", "tec..."
+        if len(tail) <= 5 and (
+            tail.startswith("ch")
+            or tail.startswith("sh")
+            or tail.startswith("te")
+        ):
+            return True
+
+        return False
 
     def _build_radio_check_briefing(self) -> str:
         if self._session_state is None:
@@ -477,7 +508,7 @@ class MicrophoneListener:
 
         if t.startswith("radio") and len(t.split()) <= 2:
             self._ignore_pending_assistant_responses()
-            hint_msg = "Comando de radio no reconocido. Di radio check."
+            hint_msg = "Comando de radio no reconocido. Di radio check o solo radio."
             print(f"[SPEAK] {hint_msg}")
             self._speaker.speak(hint_msg)
             return
@@ -498,6 +529,8 @@ class MicrophoneListener:
 
     @staticmethod
     def _is_objective_query(text: str) -> bool:
+        if MicrophoneListener._is_session_objectives_query(text):
+            return False
         return any(
             token in text
             for token in ("objetivo", "métricas", "metricas", "ritmo", "pace", "consumo", "fuel", "readiness", "listos")

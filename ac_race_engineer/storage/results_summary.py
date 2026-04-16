@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import configparser
 import json
 import os
 import re
@@ -22,6 +23,14 @@ class StandingEntry:
 class LiveGapInfo:
     gap_ahead_seconds: float | None = None
     gap_behind_seconds: float | None = None
+
+
+@dataclass(slots=True)
+class LiveWeatherInfo:
+    track_grip_percent: float | None = None
+    air_temp_c: float | None = None
+    asphalt_temp_c: float | None = None
+    wind_speed_kmh: float | None = None
 
 
 def build_session_end_summary(
@@ -164,6 +173,247 @@ def load_live_gap_info(
                     return LiveGapInfo(gap_ahead_seconds=gap_ahead, gap_behind_seconds=gap_behind)
 
     return LiveGapInfo()
+
+
+def load_live_weather_info(
+    result_dirs: list[str],
+    expected_session_type: str | None = None,
+) -> LiveWeatherInfo:
+    for candidate in _find_recent_json_candidates(result_dirs, max_files=20):
+        try:
+            with candidate.open("r", encoding="utf-8") as f:
+                payload = json.load(f)
+        except Exception:
+            continue
+
+        if not isinstance(payload, dict):
+            continue
+        if not _matches_session_type(payload, expected_session_type):
+            continue
+
+        raw_grip = _extract_first_float_by_keys(
+            payload,
+            keys={"trackgrip", "track_grip", "surfacegrip", "surface_grip", "grip"},
+        )
+        raw_air = _extract_first_float_by_keys(
+            payload,
+            keys={
+                "airtemp",
+                "air_temp",
+                "ambienttemp",
+                "ambient_temp",
+                "airtemperature",
+                "airtempc",
+                "ambienttempc",
+            },
+        )
+        raw_asphalt = _extract_first_float_by_keys(
+            payload,
+            keys={
+                "roadtemp",
+                "road_temp",
+                "asphalttemp",
+                "asphalt_temp",
+                "tracktemp",
+                "track_temp",
+                "tarmactemp",
+                "tarmac_temp",
+                "roadtempc",
+                "tracktempc",
+            },
+        )
+        raw_wind = _extract_first_float_by_keys(
+            payload,
+            keys={
+                "windspeed",
+                "wind_speed",
+                "windkmh",
+                "wind_kmh",
+                "windspeedkmh",
+                "wind",
+            },
+        )
+
+        grip_percent = None
+        if raw_grip is not None:
+            grip_percent = raw_grip * 100.0 if 0.0 < raw_grip <= 2.0 else raw_grip
+            if not (0.0 <= grip_percent <= 200.0):
+                grip_percent = None
+
+        air_temp_c = raw_air if raw_air is not None and -40.0 <= raw_air <= 80.0 else None
+        asphalt_temp_c = (
+            raw_asphalt if raw_asphalt is not None and -40.0 <= raw_asphalt <= 120.0 else None
+        )
+        wind_speed_kmh = raw_wind if raw_wind is not None and 0.0 <= raw_wind <= 250.0 else None
+
+        if (
+            grip_percent is not None
+            or air_temp_c is not None
+            or asphalt_temp_c is not None
+            or wind_speed_kmh is not None
+        ):
+            return LiveWeatherInfo(
+                track_grip_percent=round(grip_percent, 1) if grip_percent is not None else None,
+                air_temp_c=round(air_temp_c, 1) if air_temp_c is not None else None,
+                asphalt_temp_c=round(asphalt_temp_c, 1) if asphalt_temp_c is not None else None,
+                wind_speed_kmh=round(wind_speed_kmh, 1) if wind_speed_kmh is not None else None,
+            )
+
+    return LiveWeatherInfo()
+
+
+def load_race_ini_weather_info(
+    expected_track_name: str | None = None,
+    expected_session_type: str | None = None,
+    max_age_seconds: float = 7200.0,
+) -> LiveWeatherInfo:
+    """Lee meteo desde race.ini (pantalla inicial de AC/CM).
+
+    Se usa solo si el archivo es reciente y coincide con pista/sesión esperadas.
+    """
+    race_ini = Path(os.path.expanduser("~/Documents/Assetto Corsa/cfg/race.ini"))
+    if not race_ini.exists() or not race_ini.is_file():
+        return LiveWeatherInfo()
+
+    try:
+        age_seconds = max(0.0, time.time() - race_ini.stat().st_mtime)
+        if age_seconds > max_age_seconds:
+            return LiveWeatherInfo()
+    except Exception:
+        return LiveWeatherInfo()
+
+    parser = configparser.ConfigParser()
+    parser.optionxform = str
+    try:
+        parser.read(race_ini, encoding="utf-8")
+    except Exception:
+        return LiveWeatherInfo()
+
+    ini_track = parser.get("RACE", "TRACK", fallback="").strip()
+    ini_mode = parser.get("METADATA", "GAMEMODE", fallback="").strip().lower()
+
+    if expected_track_name and ini_track:
+        if not _tracks_match(ini_track, expected_track_name):
+            return LiveWeatherInfo()
+
+    if expected_session_type and ini_mode:
+        if not _session_modes_match(ini_mode, expected_session_type):
+            return LiveWeatherInfo()
+
+    ambient = _ini_get_float(parser, "TEMPERATURE", "AMBIENT")
+    road = _ini_get_float(parser, "TEMPERATURE", "ROAD")
+    wind_min = _ini_get_float(parser, "WIND", "SPEED_KMH_MIN")
+    wind_max = _ini_get_float(parser, "WIND", "SPEED_KMH_MAX")
+
+    wind = None
+    if wind_min is not None and wind_max is not None:
+        wind = (wind_min + wind_max) / 2.0
+    elif wind_min is not None:
+        wind = wind_min
+    elif wind_max is not None:
+        wind = wind_max
+
+    if ambient is not None and not (-40.0 <= ambient <= 80.0):
+        ambient = None
+    if road is not None and not (-40.0 <= road <= 120.0):
+        road = None
+    if wind is not None and not (0.0 <= wind <= 250.0):
+        wind = None
+
+    if ambient is None and road is None and wind is None:
+        return LiveWeatherInfo()
+
+    return LiveWeatherInfo(
+        air_temp_c=round(ambient, 1) if ambient is not None else None,
+        asphalt_temp_c=round(road, 1) if road is not None else None,
+        wind_speed_kmh=round(wind, 1) if wind is not None else None,
+    )
+
+
+def load_ac_log_weather_info(max_age_seconds: float = 7200.0) -> LiveWeatherInfo:
+    """Lee meteo en vivo desde log.txt de AC/CSP.
+
+    Busca las ultimas lineas con:
+    - ACP_WEATHER_UPDATE: Ambient=.. Road=..
+    - Setting wind .. kmh
+    """
+    ac_log_path = Path(os.path.expanduser("~/Documents/Assetto Corsa/logs/log.txt"))
+    csp_log_path = Path(os.path.expanduser("~/Documents/Assetto Corsa/logs/custom_shaders_patch.log"))
+
+    candidates = [p for p in (ac_log_path, csp_log_path) if p.exists() and p.is_file()]
+    if not candidates:
+        return LiveWeatherInfo()
+
+    recent_texts: list[str] = []
+    for log_path in candidates:
+        try:
+            age_seconds = max(0.0, time.time() - log_path.stat().st_mtime)
+            if age_seconds > max_age_seconds:
+                continue
+        except Exception:
+            continue
+
+        # El valor de viento suele aparecer al inicio de carga de sesión.
+        # Si el log es muy verboso, 600 KB puede dejar esa línea fuera.
+        text = _read_text_tail(log_path, max_bytes=5_000_000)
+        if text:
+            recent_texts.append(text)
+
+    text = "\n".join(recent_texts)
+    if not text:
+        return LiveWeatherInfo()
+
+    weather_match = None
+    for match in re.finditer(
+        r"ACP_WEATHER_UPDATE:\s*Ambient=([-+]?\d+(?:\.\d+)?)\s*Road=([-+]?\d+(?:\.\d+)?)",
+        text,
+        flags=re.IGNORECASE,
+    ):
+        weather_match = match
+
+    wind_match = None
+    wind_patterns = (
+        r"Setting\s+wind\s+([-+]?\d+(?:\.\d+)?)\s*kmh",
+        r"wind\s*[:=]\s*([-+]?\d+(?:\.\d+)?)\s*(?:kmh|km/h)",
+        r"wind\s+([-+]?\d+(?:\.\d+)?)\s*(?:kmh|km/h)",
+    )
+    for pattern in wind_patterns:
+        for match in re.finditer(pattern, text, flags=re.IGNORECASE):
+            wind_match = match
+
+    air_temp = None
+    asphalt_temp = None
+    wind_speed = None
+
+    if weather_match is not None:
+        try:
+            air_temp = float(weather_match.group(1))
+            asphalt_temp = float(weather_match.group(2))
+        except ValueError:
+            air_temp = None
+            asphalt_temp = None
+
+    if wind_match is not None:
+        try:
+            wind_speed = float(wind_match.group(1))
+        except ValueError:
+            wind_speed = None
+
+    if air_temp is not None and not (-40.0 <= air_temp <= 80.0):
+        air_temp = None
+    if asphalt_temp is not None and not (-40.0 <= asphalt_temp <= 120.0):
+        asphalt_temp = None
+    if wind_speed is not None and not (0.0 <= wind_speed <= 250.0):
+        wind_speed = None
+
+    if air_temp is None and asphalt_temp is None and wind_speed is None:
+        return LiveWeatherInfo()
+
+    return LiveWeatherInfo(
+        air_temp_c=round(air_temp, 1) if air_temp is not None else None,
+        asphalt_temp_c=round(asphalt_temp, 1) if asphalt_temp is not None else None,
+        wind_speed_kmh=round(wind_speed, 1) if wind_speed is not None else None,
+    )
 
 
 def load_live_car_index_map(
@@ -446,6 +696,97 @@ def _pick_bool(data: dict[str, object], keys: list[str]) -> bool | None:
             if normalized in {"0", "false", "no"}:
                 return False
     return None
+
+
+def _extract_first_float_by_keys(node: object, keys: set[str]) -> float | None:
+    if isinstance(node, dict):
+        for raw_key, value in node.items():
+            normalized_key = str(raw_key).strip().lower().replace("-", "_").replace(" ", "")
+            if normalized_key in keys:
+                if isinstance(value, (int, float)):
+                    return float(value)
+                if isinstance(value, str):
+                    cleaned = value.strip().replace(",", ".")
+                    try:
+                        return float(cleaned)
+                    except ValueError:
+                        pass
+
+        for value in node.values():
+            found = _extract_first_float_by_keys(value, keys)
+            if found is not None:
+                return found
+
+    if isinstance(node, list):
+        for item in node:
+            found = _extract_first_float_by_keys(item, keys)
+            if found is not None:
+                return found
+
+    return None
+
+
+def _ini_get_float(parser: configparser.ConfigParser, section: str, key: str) -> float | None:
+    if not parser.has_section(section) or not parser.has_option(section, key):
+        return None
+    value = parser.get(section, key, fallback="").strip().replace(",", ".")
+    if not value:
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
+def _read_text_tail(path: Path, max_bytes: int = 200_000) -> str:
+    try:
+        file_size = path.stat().st_size
+        read_size = min(max_bytes, file_size)
+        with path.open("rb") as f:
+            if file_size > read_size:
+                f.seek(file_size - read_size)
+            data = f.read()
+        return data.decode("utf-8", errors="ignore")
+    except Exception:
+        return ""
+
+
+def _normalize_token(value: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", (value or "").strip().lower())
+
+
+def _tracks_match(ini_track: str, expected_track: str) -> bool:
+    a = _normalize_token(ini_track)
+    b = _normalize_token(expected_track)
+    if not a or not b:
+        return False
+    return a == b or a in b or b in a
+
+
+def _session_modes_match(ini_mode: str, expected_session: str) -> bool:
+    mode = _normalize_token(ini_mode)
+    expected = _normalize_token(expected_session)
+    if not mode or not expected:
+        return False
+
+    aliases = {
+        "practice": {"practice", "practica", "practica1", "practicesession"},
+        "qualifying": {"qualifying", "qualification", "qualy", "clasificacion"},
+        "race": {"race", "carrera"},
+    }
+
+    canonical_mode = None
+    canonical_expected = None
+    for key, values in aliases.items():
+        if mode in values:
+            canonical_mode = key
+        if expected in values:
+            canonical_expected = key
+
+    if canonical_mode and canonical_expected:
+        return canonical_mode == canonical_expected
+
+    return mode == expected
 
 
 def _parse_lap_time_string(value: str) -> float | None:

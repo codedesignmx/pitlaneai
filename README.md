@@ -1,4 +1,9 @@
 # Pendientes
+- En cualquier sesión, si el piloto pide calcular el combustible para x vueltas o x tiempo
+- Si el piloto habla, cortar TTS y responder primero al comando del piloto siempre.
+- Perfil de voz por contexto: práctica más analítico, qualy más breve, carrera ultra-corto.
+- Box next lap
+- Modo crítico: Si hay alerta crítica, silenciar mensajes no críticos automáticamente por unos segundos.
 - *En carrera, estos mensajes:
     [AUTO] Carrera. Promedio ultimas tres 2 minutos : 3 segundos . 988 milesimas. Prioriza traccion y cuida neumatico. Fuel para 4.3 vueltas.
 Quita lo de carrera. Solo que diga la diferencia que tenemos con el de adelante y la ventaja que le tenemos al de atrás.
@@ -6,7 +11,6 @@ Quita lo de prioriza tracción y cuida neumático y que si siga diciendo lo de F
 - *En una parte donde dice las vueltas, la toma como si fuera miles, creo lo correcto es x.x vueltas.
 - *En práctica, qualy y carrera cuando alguien hace record el nombre y tiempos de los demás competidores de lfms no lo dice
 - *Se puede saber el estado del auto, si tiene daños y detectar colisiones y saber quién nos golpeó o a quién golpeamos
-
 - Banderas amarillas
 - Banderas azules
 - Si pregunto que lugar estamos, qualy, practica, carrera que de el lugar y el tiempo
@@ -15,6 +19,11 @@ Quita lo de prioriza tracción y cuida neumático y que si siga diciendo lo de F
 - Que costo tiene aproximado por vuelta con lo del asistente AI
 - Estado llantas
 - Revisión de fuel: En cualquier punto y sesión, si a la siguiente vuelta no paramos a repostar, es necesario priorizar mandar mensaje para cargar
+- EstrategiasAi: What-if engine” por voz:
+“Si paro en 3 vueltas y cargo X litros, ¿dónde salgo?”
+- Dashboard web companion: sector, comparación contra stints previos. “Highlights automáticos” de la sesión: Sistema de perfiles: Piloto, coche, pista, setup, condiciones, y recomendaciones persistentes. Presets de personalidad de ingeniero: Calmado, agresivo, minimalista, data-driven.
+- Appanion móvil (segunda pantalla)
+- Onboarding: Primeros 2-3 minutos con guía mínima: comandos clave, cómo cancelar, cómo pedir resumen. Comando Ayuda rápida.
 # AC Race Engineer MVP
 Race engineer por voz para Assetto Corsa (shared memory directo), con eventos de ritmo/combustible, asistente IA y feedback automatico.
 

@@ -1,0 +1,138 @@
+{
+  "timestamp": "2026-04-16T17:05:51.194531",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260416_165151",
+  "rivals": [
+    {
+      "name": "Victor Roca",
+      "best_lap_seconds": 66.42,
+      "seen_samples": 105,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 3,
+      "ahead_samples": 105,
+      "behind_samples": 0
+    },
+    {
+      "name": "Omar",
+      "best_lap_seconds": 66.151,
+      "seen_samples": 105,
+      "avg_position": 2.3523809523809525,
+      "last_position": 2,
+      "improvements": 2,
+      "ahead_samples": 105,
+      "behind_samples": 0
+    },
+    {
+      "name": "Gabo Magna",
+      "best_lap_seconds": 66.276,
+      "seen_samples": 105,
+      "avg_position": 3.857142857142857,
+      "last_position": 3,
+      "improvements": 1,
+      "ahead_samples": 98,
+      "behind_samples": 0
+    },
+    {
+      "name": "SGT.왕박살",
+      "best_lap_seconds": 66.601,
+      "seen_samples": 105,
+      "avg_position": 2.7904761904761903,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 90,
+      "behind_samples": 0
+    },
+    {
+      "name": "Oleg Daniel",
+      "best_lap_seconds": 68.785,
+      "seen_samples": 105,
+      "avg_position": 6.485714285714286,
+      "last_position": 5,
+      "improvements": 3,
+      "ahead_samples": 83,
+      "behind_samples": 22
+    },
+    {
+      "name": "Brandon Granados",
+      "best_lap_seconds": 66.259,
+      "seen_samples": 105,
+      "avg_position": 5.419047619047619,
+      "last_position": 6,
+      "improvements": 1,
+      "ahead_samples": 83,
+      "behind_samples": 22
+    },
+    {
+      "name": "fabianmoralesalvarado",
+      "best_lap_seconds": 67.623,
+      "seen_samples": 62,
+      "avg_position": 9.838709677419354,
+      "last_position": 7,
+      "improvements": 2,
+      "ahead_samples": 13,
+      "behind_samples": 40
+    },
+    {
+      "name": "NOOM",
+      "best_lap_seconds": 66.877,
+      "seen_samples": 105,
+      "avg_position": 6.295238095238095,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 83,
+      "behind_samples": 22
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 66.306,
+      "seen_samples": 105,
+      "avg_position": 9.952380952380953,
+      "last_position": 9,
+      "improvements": 1,
+      "ahead_samples": 23,
+      "behind_samples": 30
+    },
+    {
+      "name": "VANNELOPE AVI",
+      "best_lap_seconds": 81.136,
+      "seen_samples": 105,
+      "avg_position": 8.133333333333333,
+      "last_position": 10,
+      "improvements": 0,
+      "ahead_samples": 83,
+      "behind_samples": 22
+    },
+    {
+      "name": "JulI Saiz",
+      "best_lap_seconds": null,
+      "seen_samples": 105,
+      "avg_position": 9.6,
+      "last_position": 11,
+      "improvements": 0,
+      "ahead_samples": 68,
+      "behind_samples": 25
+    },
+    {
+      "name": "Ventilador",
+      "best_lap_seconds": null,
+      "seen_samples": 105,
+      "avg_position": 11.39047619047619,
+      "last_position": 12,
+      "improvements": 0,
+      "ahead_samples": 4,
+      "behind_samples": 91
+    },
+    {
+      "name": "Kitartá",
+      "best_lap_seconds": null,
+      "seen_samples": 10,
+      "avg_position": 13.0,
+      "last_position": 13,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 10
+    }
+  ]
+}
