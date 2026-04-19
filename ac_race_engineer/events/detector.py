@@ -70,6 +70,9 @@ class EventDetector:
         if avg_fuel is not None and state.last_snapshot is not None:
             laps_left = estimate_laps_left(state.last_snapshot.fuel, avg_fuel)
             laps_to_finish = None
+            normalized_time_left = self._normalize_session_seconds(
+                state.last_snapshot.session_time_left_seconds
+            )
 
             # Fixed-lap race
             if state.last_snapshot.session_laps_total > 0:
@@ -84,14 +87,19 @@ class EventDetector:
                 if (
                     avg_lap_for_projection is not None
                     and avg_lap_for_projection > 0.0
-                    and state.last_snapshot.session_time_left_seconds > 0.0
+                    and normalized_time_left is not None
+                    and normalized_time_left > 0.0
                 ):
                     current_lap_remaining = max(
                         0.0,
                         avg_lap_for_projection - state.last_snapshot.current_lap_time_seconds,
                     )
-                    total_time_to_cover = state.last_snapshot.session_time_left_seconds + current_lap_remaining
+                    total_time_to_cover = normalized_time_left + current_lap_remaining
                     laps_to_finish = total_time_to_cover / avg_lap_for_projection
+
+                    # Protección contra lecturas corruptas: evita anunciar miles de vueltas.
+                    if laps_to_finish > 150.0:
+                        laps_to_finish = None
 
             if self.cooldown.can_emit("fuel_update", 25.0):
                 events.append(
@@ -105,9 +113,9 @@ class EventDetector:
                             "estimated_laps_to_finish": round(laps_to_finish, 2)
                             if laps_to_finish is not None
                             else None,
-                            "session_time_left_seconds": round(
-                                state.last_snapshot.session_time_left_seconds, 1
-                            ),
+                            "session_time_left_seconds": round(normalized_time_left, 1)
+                            if normalized_time_left is not None
+                            else None,
                         },
                     )
                 )
@@ -188,3 +196,16 @@ class EventDetector:
             )
 
         return events
+
+    @staticmethod
+    def _normalize_session_seconds(seconds: float | None) -> float | None:
+        if seconds is None:
+            return None
+        value = float(seconds)
+        if value > 21600.0:
+            value = value / 1000.0
+        if value < 0.0:
+            value = 0.0
+        if value > 86400.0:
+            return None
+        return value

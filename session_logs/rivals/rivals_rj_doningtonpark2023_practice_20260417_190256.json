@@ -1,0 +1,178 @@
+{
+  "timestamp": "2026-04-17T19:10:08.685689",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260417_190256",
+  "rivals": [
+    {
+      "name": "Zodape",
+      "best_lap_seconds": 66.386,
+      "seen_samples": 54,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 13,
+      "behind_samples": 0
+    },
+    {
+      "name": "Tithormo",
+      "best_lap_seconds": 65.026,
+      "seen_samples": 54,
+      "avg_position": 2.9814814814814814,
+      "last_position": 2,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 45
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.413,
+      "seen_samples": 54,
+      "avg_position": 2.2037037037037037,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 50
+    },
+    {
+      "name": "Pepin",
+      "best_lap_seconds": 69.487,
+      "seen_samples": 54,
+      "avg_position": 4.777777777777778,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "diofully",
+      "best_lap_seconds": 67.061,
+      "seen_samples": 54,
+      "avg_position": 4.592592592592593,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "Warxks",
+      "best_lap_seconds": 69.008,
+      "seen_samples": 54,
+      "avg_position": 5.592592592592593,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "SchwarzTrader",
+      "best_lap_seconds": 67.862,
+      "seen_samples": 54,
+      "avg_position": 6.851851851851852,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "lafuaNMY",
+      "best_lap_seconds": 67.216,
+      "seen_samples": 54,
+      "avg_position": 8.425925925925926,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "Exequi",
+      "best_lap_seconds": 80.956,
+      "seen_samples": 54,
+      "avg_position": 8.574074074074074,
+      "last_position": 9,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "GORDO Q MUESTra los PEZONES",
+      "best_lap_seconds": 65.478,
+      "seen_samples": 54,
+      "avg_position": 11.962962962962964,
+      "last_position": 10,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "Roberto Sena",
+      "best_lap_seconds": 67.13,
+      "seen_samples": 54,
+      "avg_position": 10.62962962962963,
+      "last_position": 11,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "TheNobunaga",
+      "best_lap_seconds": 68.175,
+      "seen_samples": 54,
+      "avg_position": 13.351851851851851,
+      "last_position": 12,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "Luciano Falese",
+      "best_lap_seconds": 66.438,
+      "seen_samples": 54,
+      "avg_position": 11.462962962962964,
+      "last_position": 13,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "Gonzalo Navarro",
+      "best_lap_seconds": 65.741,
+      "seen_samples": 54,
+      "avg_position": 12.666666666666666,
+      "last_position": 14,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "montalbanzapatadiego",
+      "best_lap_seconds": 69.895,
+      "seen_samples": 54,
+      "avg_position": 15.407407407407407,
+      "last_position": 15,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "2Paquito",
+      "best_lap_seconds": 72.872,
+      "seen_samples": 54,
+      "avg_position": 15.518518518518519,
+      "last_position": 16,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    },
+    {
+      "name": "Ahwechou",
+      "best_lap_seconds": null,
+      "seen_samples": 54,
+      "avg_position": 17.814814814814813,
+      "last_position": 18,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 54
+    }
+  ]
+}

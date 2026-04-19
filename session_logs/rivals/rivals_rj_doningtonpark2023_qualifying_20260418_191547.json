@@ -1,0 +1,198 @@
+{
+  "timestamp": "2026-04-18T19:27:05.282456",
+  "session_type": "qualifying",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260418_191547",
+  "rivals": [
+    {
+      "name": "#10 | Marco Cabanas",
+      "best_lap_seconds": 66.318,
+      "seen_samples": 84,
+      "avg_position": 4.488095238095238,
+      "last_position": 1,
+      "improvements": 3,
+      "ahead_samples": 50,
+      "behind_samples": 26
+    },
+    {
+      "name": "#14 | Kevin Chacon",
+      "best_lap_seconds": 67.869,
+      "seen_samples": 84,
+      "avg_position": 5.488095238095238,
+      "last_position": 2,
+      "improvements": 3,
+      "ahead_samples": 46,
+      "behind_samples": 36
+    },
+    {
+      "name": "#11 | Ignacio Alvarez",
+      "best_lap_seconds": 66.523,
+      "seen_samples": 84,
+      "avg_position": 3.738095238095238,
+      "last_position": 3,
+      "improvements": 4,
+      "ahead_samples": 57,
+      "behind_samples": 18
+    },
+    {
+      "name": "#5 | Lestter Cofre Yanez",
+      "best_lap_seconds": 65.545,
+      "seen_samples": 84,
+      "avg_position": 8.392857142857142,
+      "last_position": 4,
+      "improvements": 2,
+      "ahead_samples": 32,
+      "behind_samples": 48
+    },
+    {
+      "name": "#7 | Leandro Castro",
+      "best_lap_seconds": 66.562,
+      "seen_samples": 84,
+      "avg_position": 4.416666666666667,
+      "last_position": 5,
+      "improvements": 3,
+      "ahead_samples": 56,
+      "behind_samples": 5
+    },
+    {
+      "name": "#1 | Steven Dollimore",
+      "best_lap_seconds": 63.885,
+      "seen_samples": 84,
+      "avg_position": 6.726190476190476,
+      "last_position": 6,
+      "improvements": 2,
+      "ahead_samples": 46,
+      "behind_samples": 32
+    },
+    {
+      "name": "#3 | Hubert Cumberdale",
+      "best_lap_seconds": 65.453,
+      "seen_samples": 84,
+      "avg_position": 7.880952380952381,
+      "last_position": 7,
+      "improvements": 2,
+      "ahead_samples": 25,
+      "behind_samples": 50
+    },
+    {
+      "name": "#8 | Klaus-Dieter Rannseier",
+      "best_lap_seconds": 66.191,
+      "seen_samples": 84,
+      "avg_position": 9.976190476190476,
+      "last_position": 8,
+      "improvements": 3,
+      "ahead_samples": 17,
+      "behind_samples": 67
+    },
+    {
+      "name": "#6 | Inaki Berazadi",
+      "best_lap_seconds": 64.23,
+      "seen_samples": 84,
+      "avg_position": 9.630952380952381,
+      "last_position": 9,
+      "improvements": 1,
+      "ahead_samples": 21,
+      "behind_samples": 63
+    },
+    {
+      "name": "#9 | Davi Oliveira",
+      "best_lap_seconds": 68.237,
+      "seen_samples": 84,
+      "avg_position": 9.416666666666666,
+      "last_position": 10,
+      "improvements": 1,
+      "ahead_samples": 16,
+      "behind_samples": 68
+    },
+    {
+      "name": "#4 | Viktoria Kitarta",
+      "best_lap_seconds": 64.57,
+      "seen_samples": 84,
+      "avg_position": 11.166666666666666,
+      "last_position": 11,
+      "improvements": 1,
+      "ahead_samples": 17,
+      "behind_samples": 67
+    },
+    {
+      "name": "#17 | Vitor Gabriel",
+      "best_lap_seconds": 67.884,
+      "seen_samples": 84,
+      "avg_position": 7.273809523809524,
+      "last_position": 12,
+      "improvements": 1,
+      "ahead_samples": 13,
+      "behind_samples": 52
+    },
+    {
+      "name": "#18 | Esteban Nava",
+      "best_lap_seconds": 71.641,
+      "seen_samples": 84,
+      "avg_position": 10.571428571428571,
+      "last_position": 13,
+      "improvements": 0,
+      "ahead_samples": 5,
+      "behind_samples": 78
+    },
+    {
+      "name": "#15 | David Sanctum",
+      "best_lap_seconds": 67.206,
+      "seen_samples": 84,
+      "avg_position": 10.583333333333334,
+      "last_position": 14,
+      "improvements": 1,
+      "ahead_samples": 5,
+      "behind_samples": 78
+    },
+    {
+      "name": "#12 | Indalecio Jesus hp",
+      "best_lap_seconds": 76.432,
+      "seen_samples": 84,
+      "avg_position": 15.380952380952381,
+      "last_position": 15,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 83
+    },
+    {
+      "name": "#2 | Zlenick Design",
+      "best_lap_seconds": null,
+      "seen_samples": 84,
+      "avg_position": 11.571428571428571,
+      "last_position": 16,
+      "improvements": 0,
+      "ahead_samples": 21,
+      "behind_samples": 62
+    },
+    {
+      "name": "#19 | Klaus-Dieter Rannseier2",
+      "best_lap_seconds": null,
+      "seen_samples": 84,
+      "avg_position": 16.595238095238095,
+      "last_position": 17,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 84
+    },
+    {
+      "name": "#16 | Alfonso Carballes",
+      "best_lap_seconds": null,
+      "seen_samples": 84,
+      "avg_position": 17.785714285714285,
+      "last_position": 18,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 84
+    },
+    {
+      "name": "#13 | Eli Batista",
+      "best_lap_seconds": null,
+      "seen_samples": 84,
+      "avg_position": 18.916666666666668,
+      "last_position": 19,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 84
+    }
+  ]
+}

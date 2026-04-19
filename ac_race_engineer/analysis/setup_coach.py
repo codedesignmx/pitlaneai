@@ -314,7 +314,6 @@ class SetupCoach:
         role = self._classify_setup_role(self.current_setup_label)
 
         current_eval = self._evaluate_current_setup()
-        best_eval = self._pick_best_setup()
         limit_note = self._build_limit_note()
 
         if session_type == "practice":
@@ -323,7 +322,7 @@ class SetupCoach:
                 lap_count = len(session_state.laps) if session_state is not None else 0
                 if lap_count == 0:
                     parts.append(
-                        "Objetivo: sal con esta base y completa dos vueltas limpias para validar el pico de qualy."
+                        "Objetivo: sal con esta base y completa dos vueltas limpias."
                     )
                 elif lap_count < 2:
                     parts.append(
@@ -334,12 +333,28 @@ class SetupCoach:
                         "Objetivo: cierra la validación de qualy con una vuelta limpia y sin errores."
                     )
             else:
-                parts.append(self._build_practice_guidance(current_eval, role))
-                auto_plan = self.build_automatic_recommendation(session_state)
-                if auto_plan:
-                    parts.append(auto_plan)
-            if best_eval is not None:
-                parts.append(self._build_best_setup_note(best_eval))
+                qualy_ok = bool(current_eval.get("qualy_validated"))
+                if qualy_ok:
+                    parts.append(
+                        "Objetivo setup: base de qualy validada; si queda tiempo, solo microajustes de bajo riesgo."
+                    )
+                else:
+                    parts.append(
+                        "Objetivo setup: todavía sin validación de qualy; completa dos vueltas limpias antes de abrir otra línea."
+                    )
+
+                if self.iterations and self.iterations[-1].outcome == "pending":
+                    last = self.iterations[-1]
+                    parts.append(
+                        f"Ajuste pendiente: valida {last.parameter} y confirma mejoró, igual o peor."
+                    )
+                elif qualy_ok:
+                    # Al cerrar objetivos de qualy en práctica, abrir refinamiento automático
+                    # si hay tiempo de sesión y sin forzar líneas de alto riesgo.
+                    followup = self._build_refinement_followup(session_state)
+                    if followup:
+                        parts.append(followup)
+
             if limit_note:
                 parts.append(limit_note)
             return " ".join(parts)
@@ -504,6 +519,56 @@ class SetupCoach:
         joined = ", ".join(unique[:2])
         return f"Atención a umbrales: ya rozas {joined}; no conviene seguir en esa dirección sin cambiar de parámetro o de base."
 
+    def _infer_practice_program_phase(self, session_state: "SessionState | None") -> str:
+        if session_state is None or session_state.last_snapshot is None:
+            return "unknown"
+        if session_state.last_snapshot.session_type != "practice":
+            return "unknown"
+
+        session_laps = session_state.laps[session_state.session_lap_start_index :]
+        valid_fuel_samples = [
+            lap.fuel_used
+            for lap in session_laps
+            if lap.fuel_used is not None and lap.fuel_used > 0.0
+        ]
+        if len(valid_fuel_samples) < 2:
+            return "fuel_calibration"
+
+        current_eval = self._evaluate_current_setup()
+        qualy_validated = bool(current_eval and current_eval.get("qualy_validated"))
+        if qualy_validated:
+            return "setup_refinement"
+        return "qualy_prep"
+
+    @staticmethod
+    def _has_time_for_refinement(session_state: "SessionState | None", min_seconds: float = 480.0) -> bool:
+        if session_state is None or session_state.last_snapshot is None:
+            return False
+        left = session_state.last_snapshot.session_time_left_seconds
+        if left is None:
+            return True
+        try:
+            return float(left) >= float(min_seconds)
+        except Exception:
+            return False
+
+    def _build_refinement_followup(
+        self,
+        session_state: "SessionState | None",
+        excluded_parameters: set[str] | None = None,
+    ) -> str:
+        if session_state is None:
+            return ""
+        if not self._has_time_for_refinement(session_state):
+            return "Tiempo justo de práctica: dejamos la base de qualy cerrada y no abrimos otra línea."
+        next_step = self.build_automatic_recommendation(
+            session_state,
+            excluded_parameters=excluded_parameters,
+        )
+        if next_step:
+            return f"Con qualy cerrado, pasamos a refinamiento. {next_step}"
+        return "Base de qualy cerrada; si aparece otra tendencia clara en pista, abrimos un refinamiento puntual."
+
     def _handle_outcome(self, outcome: str, session_state: "SessionState | None" = None) -> str:
         rec = self.last_recommendation
         if rec is None:
@@ -514,10 +579,25 @@ class SetupCoach:
         if self.iterations and self.iterations[-1].outcome == "pending":
             self.iterations[-1].outcome = outcome
 
+        phase = self._infer_practice_program_phase(session_state)
+        qualy_closed = phase == "setup_refinement"
+
         if outcome == "better":
             confirmed_parameter = rec.parameter
             confirmed_value = rec.target_value
             self.last_recommendation = None
+
+            if qualy_closed:
+                followup = self._build_refinement_followup(
+                    session_state,
+                    excluded_parameters={confirmed_parameter},
+                )
+                return (
+                    f"Perfecto, se confirma mejora. Mantén {confirmed_parameter} en {confirmed_value:.0f}. "
+                    "Base de qualy confirmada. "
+                    f"{followup}"
+                )
+
             next_step = ""
             if session_state is not None:
                 next_step = self.build_automatic_recommendation(
@@ -535,6 +615,18 @@ class SetupCoach:
             )
 
         if outcome == "same":
+            if qualy_closed:
+                self.last_recommendation = None
+                followup = self._build_refinement_followup(
+                    session_state,
+                    excluded_parameters={rec.parameter},
+                )
+                return (
+                    f"Sin cambio claro en {rec.parameter}. "
+                    "Base de qualy se mantiene como referencia. "
+                    f"{followup}"
+                )
+
             action = "sube" if rec.direction > 0 else "baja"
             return (
                 f"Sin cambio claro. Segunda iteración: {action} {rec.parameter} 1 clic adicional, "
@@ -542,12 +634,35 @@ class SetupCoach:
             )
 
         # worse
-        reverse_target = rec.current_value - rec.direction * rec.step
+        # Volver al valor previo al ajuste recomendado.
+        reverse_target = rec.target_value - rec.direction * rec.step
         reverse_target = min(max(reverse_target, rec.min_value), rec.max_value)
         self.last_recommendation = None
+
+        if qualy_closed:
+            followup = self._build_refinement_followup(
+                session_state,
+                excluded_parameters={rec.parameter},
+            )
+            return (
+                f"Empeoró. Revierte hacia {reverse_target:.0f} en {rec.parameter} y descartamos esa línea. "
+                "Base de qualy queda cerrada con la referencia anterior. "
+                f"{followup}"
+            )
+
+        # En práctica sin qualy cerrado, proponer automáticamente el siguiente ajuste
+        next_step = self.build_automatic_recommendation(
+            session_state,
+            excluded_parameters={rec.parameter},
+        )
+        if next_step:
+            return (
+                f"Empeoró. Revierte hacia {reverse_target:.0f} en {rec.parameter} y descartamos esa línea. "
+                f"{next_step}"
+            )
         return (
             f"Empeoró. Revierte hacia {reverse_target:.0f} en {rec.parameter} y descartamos esa línea. "
-            "Pásame otra sensación para proponer alternativa."
+            "Con el setup actual no hay otra línea clara que probar en este momento."
         )
 
     def build_automatic_recommendation(
@@ -581,16 +696,27 @@ class SetupCoach:
 
         chosen: SetupRecommendation | None = None
         chosen_issue = ""
+        relaxed_fallback = False
         excluded = {item.strip().upper() for item in (excluded_parameters or set()) if item}
         for issue in issue_candidates:
             rec = self._recommend_for_issue(issue)
             if rec is None:
                 continue
 
-            if rec.parameter.strip().upper() in excluded:
+            param_key = rec.parameter.strip().upper()
+            if param_key in excluded:
                 continue
 
             score = self._parameter_score(rec.parameter, session_state=session_state)
+            session_bucket = self._parameter_outcomes.get(param_key, {})
+            session_better = int(session_bucket.get("better", 0))
+            session_worse = int(session_bucket.get("worse", 0))
+
+            # Si en esta sesión un parámetro ya va en balance negativo,
+            # no lo reabrimos automáticamente en el mismo ciclo.
+            if session_worse > session_better:
+                continue
+
             # Si una línea fue claramente mala en esta sesión, no insistimos.
             if score <= -2:
                 continue
@@ -601,6 +727,31 @@ class SetupCoach:
             chosen = rec
             chosen_issue = issue
             break
+
+        # Fallback controlado: si los filtros históricos bloquean todo, proponemos
+        # una línea conservadora para no cortar el flujo de iteración en práctica.
+        if chosen is None:
+            for issue in issue_candidates:
+                rec = self._recommend_for_issue(issue)
+                if rec is None:
+                    continue
+                param_key = rec.parameter.strip().upper()
+                if param_key in excluded:
+                    continue
+
+                session_bucket = self._parameter_outcomes.get(param_key, {})
+                session_better = int(session_bucket.get("better", 0))
+                session_worse = int(session_bucket.get("worse", 0))
+                if session_worse > session_better:
+                    continue
+
+                if self._crosses_learned_limit(rec, session_state=session_state):
+                    continue
+
+                chosen = rec
+                chosen_issue = issue
+                relaxed_fallback = True
+                break
 
         if chosen is None:
             return ""
@@ -627,11 +778,18 @@ class SetupCoach:
         )
 
         action = "sube" if chosen.direction > 0 else "baja"
+        caution = ""
+        if relaxed_fallback:
+            caution = (
+                " Nota: recomendación en modo exploración controlada; "
+                "vigila estabilidad y confirma mejoró, igual o peor tras dos vueltas."
+            )
         return (
             f"Recomendación automática: {action} {chosen.parameter} en {chosen.step:.0f} clic. "
             f"Actual {chosen.current_value:.0f}, objetivo {chosen.target_value:.0f}, "
             f"rango {chosen.min_value:.0f} a {chosen.max_value:.0f}. "
             f"Motivo: {chosen.reason}. Haz dos vueltas y confirma mejoró, igual o peor."
+            f"{caution}"
         )
 
     @staticmethod
@@ -931,6 +1089,10 @@ class SetupCoach:
     def _detect_outcome(text: str) -> str | None:
         t = (text or "").lower()
 
+        # Evita falsos positivos: "no mejoró" no debe contar como mejora.
+        if any(p in t for p in ("no mejoro", "no mejoró", "no va mejor", "no fue mejor")):
+            return "same"
+
         worse_patterns = (
             "empeor",
             "peor",
@@ -1027,6 +1189,26 @@ class SetupCoach:
             current = self.current_values.get(parameter)
             if current is None:
                 continue
+
+            # Algunos coches usan DIFF_POWER discreto; en Tatuus FA1 son 10/50/90.
+            if parameter == "DIFF_POWER":
+                snapped = self._discrete_diff_power_target(current, direction)
+                if snapped is not None:
+                    min_v, max_v = self._get_bounds(parameter, current)
+                    target = min(max(snapped, min_v), max_v)
+                    if abs(target - current) < 0.01:
+                        continue
+                    return SetupRecommendation(
+                        parameter=parameter,
+                        direction=direction,
+                        step=abs(target - current),
+                        reason=reason,
+                        current_value=current,
+                        target_value=target,
+                        min_value=min_v,
+                        max_value=max_v,
+                    )
+
             min_v, max_v = self._get_bounds(parameter, current)
             target = current + direction * step
             target = min(max(target, min_v), max_v)
@@ -1043,6 +1225,22 @@ class SetupCoach:
                 max_value=max_v,
             )
 
+        return None
+
+    def _discrete_diff_power_target(self, current: float, direction: int) -> float | None:
+        car = (self.current_car_model or "").strip().lower()
+        if car != "tatuusfa1":
+            return None
+
+        allowed = [10.0, 50.0, 90.0]
+        if direction > 0:
+            for value in allowed:
+                if value > current + 0.01:
+                    return value
+            return None
+        for value in reversed(allowed):
+            if value < current - 0.01:
+                return value
         return None
 
     def _get_bounds(self, parameter: str, fallback_current: float) -> tuple[float, float]:
@@ -1104,7 +1302,7 @@ class SetupCoach:
         hardcoded: dict[str, tuple[float, float]] = {
             "WING_1": (0.0, 20.0),
             "WING_2": (0.0, 20.0),
-            "DIFF_POWER": (0.0, 100.0),
+            "DIFF_POWER": (10.0, 90.0),
             "DIFF_COAST": (0.0, 100.0),
             "FRONT_BIAS": (45.0, 65.0),
             "ARB_FRONT": (0.0, 50.0),

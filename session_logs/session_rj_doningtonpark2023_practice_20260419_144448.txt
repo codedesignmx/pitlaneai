@@ -1,0 +1,55 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-19 15:10:30
+Track: rj_doningtonpark2023
+Vehículo: tatuusfa1
+Sesión: practice
+Fase detectada: qualy_simulation
+Vueltas totales: 13
+Setup: 7573301b27eb (TFA01-DONINGTONPARK-Q)
+
+TIEMPOS:
+  Mejor vuelta: 65.689s
+  Promedio: 113.904s
+  Muestras válidas: 13
+
+COMBUSTIBLE:
+  Consumo promedio: 1.107 L/vuelta
+  Muestras: 10
+
+CONDICIONES (inicio → fin):
+  Aire: 15°C → 15°C
+  Asfalto: 18°C → 18°C
+
+SETUPS TESTEADOS:
+  965b6e5ad349: 8 vueltas
+  7573301b27eb: 5 vueltas
+
+ITERACIONES SETUP COACH:
+  1. auto_oversteer_entry -> down WING_1 (1 clic), resultado: better.
+     motivo: menos agresivo delante al girar
+  2. auto_poor_traction -> up DIFF_POWER (2 clic), resultado: better.
+     motivo: mejor tracción en salida
+  3. auto_oversteer_entry -> down WING_1 (1 clic), resultado: pending.
+     motivo: menos agresivo delante al girar
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+1     107.511s   —          965b6e5ad349
+2     107.511s   1.27L      965b6e5ad349
+3     68.261s    1.25L      965b6e5ad349
+4     66.778s    1.25L      965b6e5ad349
+5     66.778s    —          965b6e5ad349
+6     66.778s    0.00L      965b6e5ad349
+7     301.672s   1.23L      965b6e5ad349
+8     68.351s    1.21L      965b6e5ad349
+9     68.351s    —          7573301b27eb
+10    209.055s   1.23L      7573301b27eb
+11    209.055s   1.22L      7573301b27eb
+12    74.965s    1.20L      7573301b27eb
+13    65.689s    1.21L      7573301b27eb
+
+================================================================================

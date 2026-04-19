@@ -1,0 +1,98 @@
+{
+  "timestamp": "2026-04-16T19:27:03.193627",
+  "session_type": "qualifying",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260416_191639",
+  "rivals": [
+    {
+      "name": "#1 | Taeeon Kim",
+      "best_lap_seconds": 66.812,
+      "seen_samples": 77,
+      "avg_position": 2.7142857142857144,
+      "last_position": 1,
+      "improvements": 2,
+      "ahead_samples": 39,
+      "behind_samples": 18
+    },
+    {
+      "name": "#9 | Javi Pardo",
+      "best_lap_seconds": 68.217,
+      "seen_samples": 77,
+      "avg_position": 3.5454545454545454,
+      "last_position": 2,
+      "improvements": 2,
+      "ahead_samples": 31,
+      "behind_samples": 32
+    },
+    {
+      "name": "#4 | Gabriel Rannseier",
+      "best_lap_seconds": 67.354,
+      "seen_samples": 77,
+      "avg_position": 5.025974025974026,
+      "last_position": 3,
+      "improvements": 1,
+      "ahead_samples": 8,
+      "behind_samples": 57
+    },
+    {
+      "name": "#7 | Alex Rannseier",
+      "best_lap_seconds": 67.361,
+      "seen_samples": 77,
+      "avg_position": 5.2727272727272725,
+      "last_position": 4,
+      "improvements": 2,
+      "ahead_samples": 6,
+      "behind_samples": 61
+    },
+    {
+      "name": "#8 | Marco Cabanas",
+      "best_lap_seconds": 66.705,
+      "seen_samples": 77,
+      "avg_position": 3.3376623376623376,
+      "last_position": 5,
+      "improvements": 2,
+      "ahead_samples": 27,
+      "behind_samples": 29
+    },
+    {
+      "name": "#2 | Jack Alec",
+      "best_lap_seconds": 67.233,
+      "seen_samples": 77,
+      "avg_position": 6.48051948051948,
+      "last_position": 6,
+      "improvements": 1,
+      "ahead_samples": 19,
+      "behind_samples": 58
+    },
+    {
+      "name": "#6 | Chad Dillon",
+      "best_lap_seconds": 66.257,
+      "seen_samples": 77,
+      "avg_position": 5.5064935064935066,
+      "last_position": 7,
+      "improvements": 1,
+      "ahead_samples": 19,
+      "behind_samples": 58
+    },
+    {
+      "name": "#3 | Inaki Berazadi",
+      "best_lap_seconds": 64.765,
+      "seen_samples": 77,
+      "avg_position": 6.805194805194805,
+      "last_position": 8,
+      "improvements": 1,
+      "ahead_samples": 19,
+      "behind_samples": 58
+    },
+    {
+      "name": "#5 | Viktoria Kitarta",
+      "best_lap_seconds": null,
+      "seen_samples": 77,
+      "avg_position": 6.311688311688312,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 19,
+      "behind_samples": 58
+    }
+  ]
+}

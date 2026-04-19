@@ -1,0 +1,141 @@
+{
+  "timestamp": "2026-04-18T19:15:14.884783",
+  "track": "rj_doningtonpark2023",
+  "vehicle": "tatuusfa1",
+  "session_type": "practice",
+  "phase": "setup_test",
+  "setup_notes": "965b6e5ad349 (TFA01-DONINGTONPARK-ROK)",
+  "setup_iterations": [
+    {
+      "timestamp": "2026-04-18T19:00:47.712593",
+      "setup_id": "97fce3e068bd",
+      "setup_label": "TFA01-DONINGTONPARK-ROK",
+      "issue": "auto_understeer_entry",
+      "parameter": "WING_1",
+      "direction": "up",
+      "step": 1.0,
+      "current_value": 5.0,
+      "target_value": 6.0,
+      "range": [
+        0.0,
+        10.0
+      ],
+      "reason": "m\u00e1s apoyo delantero en entrada",
+      "outcome": "worse"
+    }
+  ],
+  "snapshots": [
+    {
+      "lap_number": 1,
+      "lap_time": 97.269,
+      "fuel_used": null,
+      "fuel_remaining": 5.7084150314331055,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "97fce3e068bd",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-18T18:57:13.029290"
+    },
+    {
+      "lap_number": 2,
+      "lap_time": 68.485,
+      "fuel_used": 1.2365508079528809,
+      "fuel_remaining": 4.471864223480225,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "97fce3e068bd",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-18T18:58:21.592239"
+    },
+    {
+      "lap_number": 3,
+      "lap_time": 66.066,
+      "fuel_used": 1.2430176734924316,
+      "fuel_remaining": 3.228846549987793,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "97fce3e068bd",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-18T18:59:27.551133"
+    },
+    {
+      "lap_number": 4,
+      "lap_time": 65.614,
+      "fuel_used": 1.2373806238174438,
+      "fuel_remaining": 1.9914659261703491,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "97fce3e068bd",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-18T19:00:33.194068"
+    },
+    {
+      "lap_number": 5,
+      "lap_time": 66.921,
+      "fuel_used": 1.211812973022461,
+      "fuel_remaining": 0.7796529531478882,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "97fce3e068bd",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-18T19:01:40.142758"
+    },
+    {
+      "lap_number": 6,
+      "lap_time": 66.921,
+      "fuel_used": null,
+      "fuel_remaining": 30.959293365478516,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "965b6e5ad349",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-18T19:10:51.590579"
+    },
+    {
+      "lap_number": 7,
+      "lap_time": 66.333,
+      "fuel_used": 2.5156822204589844,
+      "fuel_remaining": 28.44361114501953,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "965b6e5ad349",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-18T19:13:12.393098"
+    },
+    {
+      "lap_number": 8,
+      "lap_time": 66.333,
+      "fuel_used": 1.2508602142333984,
+      "fuel_remaining": 27.192750930786133,
+      "track_name": "rj_doningtonpark2023",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "965b6e5ad349",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-18T19:14:24.993790"
+    }
+  ]
+}

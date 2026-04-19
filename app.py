@@ -113,6 +113,8 @@ def run() -> None:
     last_car_index_map: dict[int, str] = {}
     local_player_name: str | None = None
     last_is_in_pit: bool | None = None
+    pit_exit_pending = False
+    pit_exit_pending_ticks = 0
     active_session_key: tuple[str, str] | None = None
     saved_session_keys: set[tuple[str, str]] = set()
     active_setup_id = "default"
@@ -234,15 +236,32 @@ def run() -> None:
                 time.sleep(SETTINGS.poll_interval_seconds)
                 continue
 
-            if (
-                last_is_in_pit is True
-                and not snapshot.is_in_pit
-                and snapshot.status == "live"
-            ):
-                pit_exit_msg = state.build_pit_exit_report()
-                if pit_exit_msg:
-                    print(f"[SPEAK] {pit_exit_msg}")
-                    queue.push(pit_exit_msg)
+            # Debounce de salida de pits para evitar falsos positivos del feed is_in_pit.
+            if snapshot.status != "live":
+                pit_exit_pending = False
+                pit_exit_pending_ticks = 0
+            else:
+                if last_is_in_pit is True and not snapshot.is_in_pit and not pit_exit_pending:
+                    pit_exit_pending = True
+                    pit_exit_pending_ticks = 1
+                elif pit_exit_pending:
+                    if snapshot.is_in_pit:
+                        pit_exit_pending = False
+                        pit_exit_pending_ticks = 0
+                    else:
+                        pit_exit_pending_ticks += 1
+                        # Requiere estabilidad fuera de pits y velocidad mínima antes de anunciar salida.
+                        if pit_exit_pending_ticks >= 3 and snapshot.speed_kmh >= 10.0:
+                            pit_exit_msg = state.build_pit_exit_report()
+                            if pit_exit_msg:
+                                print(f"[SPEAK] {pit_exit_msg}")
+                                queue.push(pit_exit_msg)
+                            pit_exit_pending = False
+                            pit_exit_pending_ticks = 0
+                        elif pit_exit_pending_ticks >= 20:
+                            # Evita quedarse colgado indefinidamente si el feed oscila.
+                            pit_exit_pending = False
+                            pit_exit_pending_ticks = 0
 
             state.record_tick(snapshot)
             if snapshot.session_time_left_seconds and snapshot.session_time_left_seconds > 0:
@@ -311,7 +330,12 @@ def run() -> None:
 
             now = time.time()
             current_session = snapshot.session_type
-            current_track = snapshot.track_name if snapshot.track_name and snapshot.track_name != "unknown" else "unknown"
+            if snapshot.track_name and snapshot.track_name != "unknown":
+                current_track = snapshot.track_name
+            elif state.last_known_track_name and state.last_known_track_name != "unknown":
+                current_track = state.last_known_track_name
+            else:
+                current_track = "unknown"
             current_session_key = None
             if current_session in {"practice", "qualifying", "race"}:
                 current_session_key = (current_track, current_session)
@@ -488,7 +512,13 @@ def run() -> None:
 
             # Session-end trigger: solo cuando la sesión termina oficialmente,
             # no por entrar a pits o cambiar setup en medio de práctica.
+            is_timed_race = (
+                snapshot.session_type == "race"
+                and snapshot.session_laps_total <= 0
+            )
             official_time_expired = (
+                not is_timed_race
+                and
                 last_session_time_left_seconds is not None
                 and last_session_time_left_seconds > 3.0
                 and remaining_session_seconds is not None

@@ -1,0 +1,138 @@
+{
+  "timestamp": "2026-04-17T19:57:12.181473",
+  "session_type": "race",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260417_192822",
+  "rivals": [
+    {
+      "name": "#1 | Jarod Castillo",
+      "best_lap_seconds": 64.413,
+      "seen_samples": 215,
+      "avg_position": 1.0046511627906978,
+      "last_position": 1,
+      "improvements": 2,
+      "ahead_samples": 215,
+      "behind_samples": 0
+    },
+    {
+      "name": "#3 | ROB SENA",
+      "best_lap_seconds": 66.698,
+      "seen_samples": 215,
+      "avg_position": 4.632558139534884,
+      "last_position": 2,
+      "improvements": 3,
+      "ahead_samples": 95,
+      "behind_samples": 117
+    },
+    {
+      "name": "#6 | Tim Thor",
+      "best_lap_seconds": 65.562,
+      "seen_samples": 215,
+      "avg_position": 2.558139534883721,
+      "last_position": 3,
+      "improvements": 2,
+      "ahead_samples": 195,
+      "behind_samples": 19
+    },
+    {
+      "name": "#13 | Viktoria Kitarta",
+      "best_lap_seconds": 65.779,
+      "seen_samples": 215,
+      "avg_position": 4.595348837209302,
+      "last_position": 4,
+      "improvements": 4,
+      "ahead_samples": 63,
+      "behind_samples": 139
+    },
+    {
+      "name": "#9 | Joe la panic",
+      "best_lap_seconds": 66.25,
+      "seen_samples": 215,
+      "avg_position": 6.088372093023255,
+      "last_position": 5,
+      "improvements": 4,
+      "ahead_samples": 58,
+      "behind_samples": 154
+    },
+    {
+      "name": "#7 | Dennis Teles",
+      "best_lap_seconds": 66.518,
+      "seen_samples": 215,
+      "avg_position": 6.837209302325581,
+      "last_position": 6,
+      "improvements": 4,
+      "ahead_samples": 35,
+      "behind_samples": 177
+    },
+    {
+      "name": "#11 | Marco Cabanas",
+      "best_lap_seconds": 66.039,
+      "seen_samples": 215,
+      "avg_position": 4.2372093023255815,
+      "last_position": 7,
+      "improvements": 2,
+      "ahead_samples": 15,
+      "behind_samples": 29
+    },
+    {
+      "name": "#8 | Zoda Pegrosso",
+      "best_lap_seconds": 66.238,
+      "seen_samples": 215,
+      "avg_position": 9.269767441860465,
+      "last_position": 8,
+      "improvements": 3,
+      "ahead_samples": 5,
+      "behind_samples": 209
+    },
+    {
+      "name": "#5 | Luciano Falese",
+      "best_lap_seconds": 66.629,
+      "seen_samples": 215,
+      "avg_position": 8.465116279069768,
+      "last_position": 9,
+      "improvements": 6,
+      "ahead_samples": 2,
+      "behind_samples": 213
+    },
+    {
+      "name": "#4 | Gonzalo navarro",
+      "best_lap_seconds": 65.994,
+      "seen_samples": 215,
+      "avg_position": 9.111627906976745,
+      "last_position": 10,
+      "improvements": 5,
+      "ahead_samples": 1,
+      "behind_samples": 194
+    },
+    {
+      "name": "#10 | Braden King",
+      "best_lap_seconds": 67.074,
+      "seen_samples": 215,
+      "avg_position": 12.07906976744186,
+      "last_position": 11,
+      "improvements": 8,
+      "ahead_samples": 0,
+      "behind_samples": 215
+    },
+    {
+      "name": "#12 | Jeremy Dela Paz",
+      "best_lap_seconds": 67.357,
+      "seen_samples": 215,
+      "avg_position": 12.265116279069767,
+      "last_position": 12,
+      "improvements": 3,
+      "ahead_samples": 0,
+      "behind_samples": 215
+    },
+    {
+      "name": "#2 | Muhammad Naufal Amir",
+      "best_lap_seconds": 66.367,
+      "seen_samples": 215,
+      "avg_position": 9.855813953488372,
+      "last_position": 13,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 215
+    }
+  ]
+}

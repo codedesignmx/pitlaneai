@@ -1,0 +1,49 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-18 19:56:17
+Track: rj_doningtonpark2023
+Vehículo: tatuusfa1
+Sesión: race
+Fase detectada: qualy_simulation
+Vueltas totales: 19
+Setup: 965b6e5ad349 (TFA01-DONINGTONPARK-ROK)
+
+TIEMPOS:
+  Mejor vuelta: 65.712s
+  Promedio: 85.531s
+  Muestras válidas: 19
+
+COMBUSTIBLE:
+  Consumo promedio: 1.479 L/vuelta
+  Muestras: 18
+
+CONDICIONES (inicio → fin):
+  Aire: 16°C → 16°C
+  Asfalto: 19°C → 19°C
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+18    108.710s   —          965b6e5ad349
+19    197.886s   1.26L      965b6e5ad349
+20    66.788s    1.25L      965b6e5ad349
+21    70.684s    1.25L      965b6e5ad349
+22    67.838s    1.25L      965b6e5ad349
+23    67.737s    1.28L      965b6e5ad349
+24    66.397s    1.26L      965b6e5ad349
+25    66.397s    5.45L      965b6e5ad349
+26    239.298s   1.19L      965b6e5ad349
+27    66.257s    1.23L      965b6e5ad349
+28    65.869s    1.25L      965b6e5ad349
+29    66.578s    1.25L      965b6e5ad349
+30    71.598s    1.26L      965b6e5ad349
+31    71.598s    1.26L      965b6e5ad349
+32    65.712s    1.25L      965b6e5ad349
+33    65.712s    1.23L      965b6e5ad349
+34    66.670s    1.26L      965b6e5ad349
+35    66.776s    1.22L      965b6e5ad349
+36    66.589s    1.23L      965b6e5ad349
+
+================================================================================

@@ -123,6 +123,9 @@ class MicrophoneListener:
                 if self._stop_event.is_set():
                     break
 
+                # Prioridad PTT: si está hablando, corta de inmediato para capturar comando.
+                self._speaker.interrupt_current_speech(clear_queue=True)
+
                 # Grabar mientras el botón esté sostenido
                 frames: list[bytes] = []
                 try:
@@ -153,7 +156,7 @@ class MicrophoneListener:
                     audio_data = sr.AudioData(b"".join(frames), RATE, 2)
                     text = self._r.recognize_google(audio_data, language="es-ES")
                     print(f"[MIC] PTT escuchó: '{text}'")
-                    self._handle_command(text)
+                    self._dispatch_command_async(text)
                 except sr.UnknownValueError:
                     pass  # silencio o interferencia
                 except sr.RequestError as exc:
@@ -163,6 +166,24 @@ class MicrophoneListener:
                     print(f"[MIC] Error inesperado procesando comando PTT: {exc}")
         finally:
             p.terminate()
+
+    def _dispatch_command_async(self, text: str) -> None:
+        """Procesa comandos sin bloquear el loop de PTT."""
+        clean_text = (text or "").strip()
+        if not clean_text:
+            return
+
+        def _worker() -> None:
+            try:
+                self._handle_command(clean_text)
+            except Exception as exc:
+                print(f"[MIC] Error en comando asíncrono: {exc}")
+
+        threading.Thread(
+            target=_worker,
+            daemon=True,
+            name="PTTCommandWorker",
+        ).start()
 
     def _run_keyword(self, source: sr.Microphone) -> None:
         """Bucle principal en modo palabra clave (Radio Check)."""

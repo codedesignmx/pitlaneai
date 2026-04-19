@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-04-19T16:06:59.171158",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260419_154144",
+  "rivals": [
+    {
+      "name": "Luis Miguel Reyes",
+      "best_lap_seconds": 64.502,
+      "seen_samples": 189,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 1,
+      "ahead_samples": 189,
+      "behind_samples": 0
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.991,
+      "seen_samples": 189,
+      "avg_position": 2.380952380952381,
+      "last_position": 2,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 27
+    },
+    {
+      "name": "Chechu Sanchez",
+      "best_lap_seconds": 66.565,
+      "seen_samples": 189,
+      "avg_position": 2.619047619047619,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 45,
+      "behind_samples": 117
+    },
+    {
+      "name": "JarodK8",
+      "best_lap_seconds": null,
+      "seen_samples": 131,
+      "avg_position": 4.0,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 131
+    }
+  ]
+}

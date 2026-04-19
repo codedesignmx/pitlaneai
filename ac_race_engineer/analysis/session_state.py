@@ -40,6 +40,8 @@ class SessionState:
     live_air_temp_c: float | None = None
     live_asphalt_temp_c: float | None = None
     live_wind_speed_kmh: float | None = None
+    local_driver_name: str | None = None
+    last_known_track_name: str | None = None
     active_setup_id: str | None = None
     active_setup_label: str | None = None
     _track_sections: list = field(default_factory=list)
@@ -53,6 +55,9 @@ class SessionState:
     best_lap_micro_profile: dict[int, dict[str, float]] = field(default_factory=dict)
 
     def update(self, snapshot: TelemetrySnapshot) -> LapRecord | None:
+        if snapshot.track_name and snapshot.track_name != "unknown":
+            self.last_known_track_name = snapshot.track_name
+
         # Primera lectura: calibrar el contador base con el estado actual de AC
         # para no detectar como vuelta nueva lo que ya completó antes de arrancar.
         if self.last_completed_lap_counter == -1:
@@ -157,6 +162,8 @@ class SessionState:
         for row in standings:
             if not row.name:
                 continue
+            if row.is_player and not self.local_driver_name:
+                self.local_driver_name = row.name.strip()
             key = row.name.strip().lower()
             prev = self.session_best_standings.get(key)
             if prev is None:
@@ -194,7 +201,16 @@ class SessionState:
         label = (setup_label or "").strip()
         self.active_setup_label = label if label else None
         if track_name:
+            if track_name != "unknown":
+                self.last_known_track_name = track_name
             self._track_sections = load_sections(track_name, track_layout or "")
+
+    def _resolve_track_label(self, snap: TelemetrySnapshot) -> str:
+        if snap.track_name and snap.track_name != "unknown":
+            return snap.track_name
+        if self.last_known_track_name and self.last_known_track_name != "unknown":
+            return self.last_known_track_name
+        return "pista desconocida"
 
     def update_live_weather(
         self,
@@ -242,7 +258,7 @@ class SessionState:
             )
         )
         where_label = "en pits" if inferred_in_pit else "en pista"
-        track_label = snap.track_name if snap.track_name and snap.track_name != "unknown" else "pista desconocida"
+        track_label = self._resolve_track_label(snap)
 
         if stats.best_lap_seconds is None:
             pace_line = "Aún no hay vueltas válidas para analizar ritmo."
@@ -262,9 +278,10 @@ class SessionState:
             if snap.track_grip_percent is not None
             else self.live_track_grip_percent
         )
-        air_value = snap.air_temp_c if snap.air_temp_c is not None else self.live_air_temp_c
+        # Preferir JSON en vivo sobre shared memory: SM no actualiza aire/asfalto mid-sesión.
+        air_value = self.live_air_temp_c if self.live_air_temp_c is not None else snap.air_temp_c
         asphalt_value = (
-            snap.asphalt_temp_c if snap.asphalt_temp_c is not None else self.live_asphalt_temp_c
+            self.live_asphalt_temp_c if self.live_asphalt_temp_c is not None else snap.asphalt_temp_c
         )
         raw_wind_snapshot = snap.wind_speed_kmh
         raw_wind_live = self.live_wind_speed_kmh
@@ -280,9 +297,6 @@ class SessionState:
         if asphalt_value is None:
             asphalt_value = ac_log_weather.asphalt_temp_c
         if wind_value is None:
-            wind_value = ac_log_weather.wind_speed_kmh
-        elif ac_log_weather.wind_speed_kmh is not None and ac_log_weather.wind_speed_kmh > 0.1:
-            # Si shared memory reporta 0 pero el log live trae valor, priorizamos log.
             wind_value = ac_log_weather.wind_speed_kmh
 
         weather_parts: list[str] = []
@@ -537,7 +551,7 @@ class SessionState:
         is_in_pit = snap.is_in_pit
 
         # Parte 1: Info básica
-        track_label = snap.track_name if snap.track_name and snap.track_name != "unknown" else "pista desconocida"
+        track_label = self._resolve_track_label(snap)
         
         session_name_map = {
             "practice": "práctica",
@@ -616,13 +630,18 @@ class SessionState:
         target_line = ""
         if target_seconds is not None:
             target_line = f"Ritmo objetivo {speak_lap_time_spanish(target_seconds)}."
-            if target_source == "rival" and history.rival_best_name:
-                target_line += f" Referencia de {history.rival_best_name}."
 
         delta_line = ""
         if own_reference_seconds is not None and target_seconds is not None:
             delta_seconds = target_seconds - own_reference_seconds
-            if delta_seconds < -0.02:
+            if target_source == "rival" and history.rival_best_name and delta_seconds < -0.02:
+                target_line = (
+                    f"Ritmo objetivo {speak_lap_time_spanish(target_seconds)} con referencia de "
+                    f"{history.rival_best_name}; delta a mejorar "
+                    f"{speak_delta_spanish(abs(delta_seconds))} contra tu referencia."
+                )
+                delta_line = ""
+            elif delta_seconds < -0.02:
                 delta_line = (
                     f"Delta contra tu referencia: necesitas mejorar "
                     f"{speak_delta_spanish(abs(delta_seconds))}."
@@ -684,9 +703,10 @@ class SessionState:
             if snap.track_grip_percent is not None
             else self.live_track_grip_percent
         )
-        air_value = snap.air_temp_c if snap.air_temp_c is not None else self.live_air_temp_c
+        # Preferir JSON en vivo sobre shared memory: SM no actualiza aire/asfalto mid-sesión.
+        air_value = self.live_air_temp_c if self.live_air_temp_c is not None else snap.air_temp_c
         asphalt_value = (
-            snap.asphalt_temp_c if snap.asphalt_temp_c is not None else self.live_asphalt_temp_c
+            self.live_asphalt_temp_c if self.live_asphalt_temp_c is not None else snap.asphalt_temp_c
         )
         raw_wind_snapshot = snap.wind_speed_kmh
         raw_wind_live = self.live_wind_speed_kmh
@@ -702,8 +722,6 @@ class SessionState:
         if asphalt_value is None:
             asphalt_value = ac_log_weather.asphalt_temp_c
         if wind_value is None:
-            wind_value = ac_log_weather.wind_speed_kmh
-        elif ac_log_weather.wind_speed_kmh is not None and ac_log_weather.wind_speed_kmh > 0.1:
             wind_value = ac_log_weather.wind_speed_kmh
 
         weather_parts: list[str] = []
@@ -1086,16 +1104,22 @@ class SessionState:
         return " ".join(parts)
 
     def _get_hotlap_ranked_standings(self) -> list[StandingEntry]:
+        local_name_keys = self._get_local_driver_name_keys()
         combined: dict[str, StandingEntry] = {}
         for row in self.session_best_standings.values():
             if row.best_lap_seconds is None or row.best_lap_seconds <= 0.0:
                 continue
-            combined[row.name.strip().lower()] = row
+            key = row.name.strip().lower()
+            if row.is_player or key in local_name_keys:
+                continue
+            combined[key] = row
 
         for row in self.live_standings:
             if row.best_lap_seconds is None or row.best_lap_seconds <= 0.0:
                 continue
             key = row.name.strip().lower()
+            if row.is_player or key in local_name_keys:
+                continue
             prev = combined.get(key)
             if prev is None or float(row.best_lap_seconds) < float(prev.best_lap_seconds):
                 combined[key] = row
@@ -1253,8 +1277,32 @@ class SessionState:
             return None
         for row in self.live_standings:
             if row.position == position:
+                if self._is_local_driver_row(row):
+                    return None
                 return row
         return None
+
+    def _get_local_driver_name_keys(self) -> set[str]:
+        keys: set[str] = set()
+        if self.local_driver_name:
+            keys.add(self.local_driver_name.strip().lower())
+        for row in self.live_standings:
+            if row.is_player and row.name:
+                keys.add(row.name.strip().lower())
+        for row in self.session_best_standings.values():
+            if row.is_player and row.name:
+                keys.add(row.name.strip().lower())
+        return keys
+
+    def _is_local_driver_row(self, row: StandingEntry | None) -> bool:
+        if row is None:
+            return False
+        if row.is_player:
+            return True
+        name_key = (row.name or "").strip().lower()
+        if not name_key:
+            return False
+        return name_key in self._get_local_driver_name_keys()
 
     @staticmethod
     def _format_target_pace_for_voice(target_pace: str) -> str:

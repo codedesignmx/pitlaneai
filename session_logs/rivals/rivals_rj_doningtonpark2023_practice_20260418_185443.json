@@ -1,0 +1,128 @@
+{
+  "timestamp": "2026-04-18T19:15:14.890300",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260418_185443",
+  "rivals": [
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.614,
+      "seen_samples": 145,
+      "avg_position": 2.5172413793103448,
+      "last_position": 1,
+      "improvements": 3,
+      "ahead_samples": 2,
+      "behind_samples": 93
+    },
+    {
+      "name": "Kageripa16",
+      "best_lap_seconds": 67.531,
+      "seen_samples": 128,
+      "avg_position": 2.9296875,
+      "last_position": 2,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 64
+    },
+    {
+      "name": "nacho",
+      "best_lap_seconds": 66.815,
+      "seen_samples": 145,
+      "avg_position": 3.4,
+      "last_position": 3,
+      "improvements": 1,
+      "ahead_samples": 27,
+      "behind_samples": 118
+    },
+    {
+      "name": "Leandro Castro",
+      "best_lap_seconds": 66.937,
+      "seen_samples": 78,
+      "avg_position": 7.5,
+      "last_position": 4,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 78
+    },
+    {
+      "name": "Hubert Cumberdale",
+      "best_lap_seconds": 65.672,
+      "seen_samples": 96,
+      "avg_position": 6.5625,
+      "last_position": 5,
+      "improvements": 1,
+      "ahead_samples": 0,
+      "behind_samples": 96
+    },
+    {
+      "name": "Revzk",
+      "best_lap_seconds": null,
+      "seen_samples": 145,
+      "avg_position": 2.3586206896551722,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 27,
+      "behind_samples": 100
+    },
+    {
+      "name": "RajaP",
+      "best_lap_seconds": 68.244,
+      "seen_samples": 145,
+      "avg_position": 4.544827586206897,
+      "last_position": 7,
+      "improvements": 2,
+      "ahead_samples": 6,
+      "behind_samples": 138
+    },
+    {
+      "name": "Jasuke Almeria",
+      "best_lap_seconds": null,
+      "seen_samples": 65,
+      "avg_position": 7.615384615384615,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 65
+    },
+    {
+      "name": "Throbbin Hood",
+      "best_lap_seconds": null,
+      "seen_samples": 145,
+      "avg_position": 6.8,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 9,
+      "behind_samples": 128
+    },
+    {
+      "name": "Nico Zlemberger",
+      "best_lap_seconds": null,
+      "seen_samples": 53,
+      "avg_position": 11.415094339622641,
+      "last_position": 11,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 53
+    },
+    {
+      "name": "Federico D'Alessandro",
+      "best_lap_seconds": null,
+      "seen_samples": 47,
+      "avg_position": 11.97872340425532,
+      "last_position": 12,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 47
+    },
+    {
+      "name": "ThePlayerJunior",
+      "best_lap_seconds": null,
+      "seen_samples": 55,
+      "avg_position": 12.436363636363636,
+      "last_position": 13,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 55
+    }
+  ]
+}

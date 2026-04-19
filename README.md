@@ -1,5 +1,14 @@
 # Pendientes
+- Final de race incorrecto:
+Final de race. Terminamos en posición 3. Mejor vuelta 1 minuto : 5 segundos . 943 milésimas. Repaso general. Posición 1, #1 | Taeeon Kim, mejor vuelta 1 minuto : 5 segundos . 982 milésimas. Posición 2, #4 | Gabriel Rannseier, mejor vuelta 1 minuto : 6 segundos . 523 milésimas. Posición 3, #8 | Marco Cabanas, mejor vuelta 1 minuto : 6 segundos . 062 milésimas. Posición 4, #7 | Alex Rannseier, mejor vuelta 1 minuto : 7 segundos . 298 milésimas. Posición 5, #9 | Javi Pardo, mejor vuelta 1 minuto : 7 segundos . 076 milésimas. Posición 6, #2 | Jack Alec, mejor vuelta 1 minuto : 7 segundos . 048 milésimas. Posición 7, #6 | Chad Dillon, mejor vuelta 1 minuto : 5 segundos . 834 milésimas. Posición 8, #3 | Inaki Berazadi, mejor vuelta 1 minuto : 6 segundos . 063 milésimas. Posición 9, #5 | Viktoria Kitarta.
+También me he dado cuenta que marca final de race justo cuando se acaba el tiempo, y digamos que no se si sea del todo correcto, por que cuando justo se acaba el tiempo, después de eso, cuando el lider pasa se marca última vuelta, entonces hasta que el lider llega a la siguiente realmente acaba la carrera, y de hecho sale una bandera a cuadros en cmrt, quizá podría ser esta la referencia para tomar correctamente el final de carrera y con esto dar el resumen.
+- Cuando es carrera por tiempo sale esto: [SPEAK] Consumo 2.00 litros por vuelta. Combustible para 5 coma 6 vueltas. Carrera por tiempo: quedan aprox 2863 coma 3 vueltas. Carga al menos 5722.0 litros.
+Y pues noto algunos erroes en cuanto a esto por que mira lo que dice del combustible al final (que es lo real y correcto)
+[SPEAK] Combustible necesario 0.8 litros. Margen 0.5 minutos. (Esto es lo que va diciendo del combustible, que según eso es necesario)
+[SPEAK] Lo malo: última vuelta lejos de tu mejor ritmo, mucho ruido entre vueltas, falta una tanda limpia. Sobró combustible al final; la próxima carrera puedes recortar aproximadamente 5.7 litros. (Esto es lo que dice al final de la carrera)
+
 - En cualquier sesión, si el piloto pide calcular el combustible para x vueltas o x tiempo
+- Retroalimentar si el piloto dice Posición, en que posición vamos, etc.
 - Si el piloto habla, cortar TTS y responder primero al comando del piloto siempre.
 - Perfil de voz por contexto: práctica más analítico, qualy más breve, carrera ultra-corto.
 - Box next lap

@@ -1,0 +1,68 @@
+{
+  "timestamp": "2026-04-19T16:23:28.184634",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260419_160705",
+  "rivals": [
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.594,
+      "seen_samples": 123,
+      "avg_position": 1.3008130081300813,
+      "last_position": 1,
+      "improvements": 2,
+      "ahead_samples": 86,
+      "behind_samples": 0
+    },
+    {
+      "name": "Luis Miguel Reyes",
+      "best_lap_seconds": 64.502,
+      "seen_samples": 123,
+      "avg_position": 1.6991869918699187,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 37,
+      "behind_samples": 0
+    },
+    {
+      "name": "Chechu Sanchez",
+      "best_lap_seconds": 66.565,
+      "seen_samples": 123,
+      "avg_position": 3.0,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 123
+    },
+    {
+      "name": "NZGoldenTree",
+      "best_lap_seconds": 92.272,
+      "seen_samples": 96,
+      "avg_position": 4.229166666666667,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 96
+    },
+    {
+      "name": "Steven Dollimore",
+      "best_lap_seconds": null,
+      "seen_samples": 37,
+      "avg_position": 5.1891891891891895,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 37
+    },
+    {
+      "name": "JarodK8",
+      "best_lap_seconds": null,
+      "seen_samples": 123,
+      "avg_position": 4.845528455284553,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 123
+    }
+  ]
+}

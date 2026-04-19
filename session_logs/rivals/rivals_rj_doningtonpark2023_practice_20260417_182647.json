@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-04-17T18:43:20.859995",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260417_182647",
+  "rivals": [
+    {
+      "name": "Vitor Goncalves",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 1,
+      "behind_samples": 0
+    },
+    {
+      "name": "Warxks",
+      "best_lap_seconds": 69.008,
+      "seen_samples": 120,
+      "avg_position": 2.683333333333333,
+      "last_position": 1,
+      "improvements": 4,
+      "ahead_samples": 6,
+      "behind_samples": 73
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 66.177,
+      "seen_samples": 120,
+      "avg_position": 2.2083333333333335,
+      "last_position": 2,
+      "improvements": 3,
+      "ahead_samples": 11,
+      "behind_samples": 65
+    },
+    {
+      "name": "Zodape",
+      "best_lap_seconds": 66.386,
+      "seen_samples": 120,
+      "avg_position": 1.9916666666666667,
+      "last_position": 3,
+      "improvements": 3,
+      "ahead_samples": 37,
+      "behind_samples": 51
+    },
+    {
+      "name": "diofully",
+      "best_lap_seconds": 68.901,
+      "seen_samples": 104,
+      "avg_position": 3.894230769230769,
+      "last_position": 4,
+      "improvements": 1,
+      "ahead_samples": 10,
+      "behind_samples": 94
+    },
+    {
+      "name": "Tithormo",
+      "best_lap_seconds": 66.893,
+      "seen_samples": 21,
+      "avg_position": 6.285714285714286,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 21
+    },
+    {
+      "name": "montalbanzapatadiego",
+      "best_lap_seconds": null,
+      "seen_samples": 115,
+      "avg_position": 4.182608695652174,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 19,
+      "behind_samples": 94
+    },
+    {
+      "name": "SchwarzTrader",
+      "best_lap_seconds": null,
+      "seen_samples": 20,
+      "avg_position": 6.15,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 19
+    }
+  ]
+}

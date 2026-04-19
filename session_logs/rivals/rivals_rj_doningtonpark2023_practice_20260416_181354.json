@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-04-16T18:26:04.515236",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260416_181354",
+  "rivals": [
+    {
+      "name": "SGT.왕박살",
+      "best_lap_seconds": 66.687,
+      "seen_samples": 91,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 0
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 65.88,
+      "seen_samples": 91,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 91
+    },
+    {
+      "name": "JulI Saiz",
+      "best_lap_seconds": null,
+      "seen_samples": 91,
+      "avg_position": 3.0,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 91
+    },
+    {
+      "name": "N0x_Player",
+      "best_lap_seconds": null,
+      "seen_samples": 91,
+      "avg_position": 4.0,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 91
+    }
+  ]
+}

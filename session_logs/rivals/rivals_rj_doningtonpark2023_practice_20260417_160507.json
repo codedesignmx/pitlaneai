@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-04-17T16:08:32.713895",
+  "session_type": "practice",
+  "track": "rj_doningtonpark2023",
+  "session_stamp": "20260417_160507",
+  "rivals": [
+    {
+      "name": "il-Daniele",
+      "best_lap_seconds": null,
+      "seen_samples": 24,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 0,
+      "ahead_samples": 24,
+      "behind_samples": 0
+    },
+    {
+      "name": "VANNELOPE AVI",
+      "best_lap_seconds": null,
+      "seen_samples": 24,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 24,
+      "behind_samples": 0
+    },
+    {
+      "name": "JulI Saiz",
+      "best_lap_seconds": null,
+      "seen_samples": 24,
+      "avg_position": 3.0,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 24,
+      "behind_samples": 0
+    },
+    {
+      "name": "raduuu :P",
+      "best_lap_seconds": null,
+      "seen_samples": 24,
+      "avg_position": 4.0,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 24,
+      "behind_samples": 0
+    },
+    {
+      "name": "talley",
+      "best_lap_seconds": null,
+      "seen_samples": 7,
+      "avg_position": 5.0,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 0
+    },
+    {
+      "name": "barney",
+      "best_lap_seconds": null,
+      "seen_samples": 12,
+      "avg_position": 6.083333333333333,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 7
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 192.462,
+      "seen_samples": 24,
+      "avg_position": 5.541666666666667,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 12
+    }
+  ]
+}

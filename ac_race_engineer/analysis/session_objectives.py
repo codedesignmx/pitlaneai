@@ -209,7 +209,25 @@ def _eval_consistency(obj: SessionObjective, laps: list[float]) -> None:
         obj.feedback = "Necesitas al menos dos vueltas válidas"
         return
 
-    best_spread = min(abs(laps[i] - laps[i + 1]) for i in range(len(laps) - 1))
+    fastest = min(laps)
+    # Evita validar pares con vueltas claramente no representativas
+    # (salida de boxes, in/out laps, tráfico extremo, etc.).
+    representative_limit = fastest + max(2.5, required_spread * 6.0)
+    representative_pairs = [
+        abs(laps[i] - laps[i + 1])
+        for i in range(len(laps) - 1)
+        if laps[i] <= representative_limit and laps[i + 1] <= representative_limit
+    ]
+
+    if not representative_pairs:
+        obj.met = False
+        obj.feedback = (
+            "Aún no hay par consecutivo representativo; completa dos vueltas limpias "
+            "en ventana de ritmo."
+        )
+        return
+
+    best_spread = min(representative_pairs)
 
     if best_spread <= required_spread:
         obj.met = True
@@ -373,7 +391,6 @@ def _build_practice(
 
     # Rival como segundo objetivo si van por delante
     if rival_best is not None and own_best is not None and rival_best < own_best:
-        gap = own_best - rival_best
         obj_set.objectives.append(
             SessionObjective(
                 id="rival_pace",
@@ -383,7 +400,7 @@ def _build_practice(
                 priority=2,
             )
         )
-        ctx_parts.append(f"{rival_name} te lleva {speak_delta_spanish(gap)}")
+        # El delta ya se comunica en el briefing principal para evitar duplicidad de mensaje.
 
     # --- 2. Validación qualy (consistencia) — siempre ---
     obj_set.objectives.append(
