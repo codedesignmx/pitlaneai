@@ -1,0 +1,11 @@
+================================================================================
+PITRADIO SETUP RECORD
+================================================================================
+
+Setup ID: 1aee15e27f31
+Car: tatuusfa1
+Track: ddm_gts_tsukuba
+Label: default
+Source: not-found
+
+No setup file content was detected for this session.

@@ -1,0 +1,54 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-21 19:26:05
+Track: ddm_gts_tsukuba
+Vehículo: tatuusfa1
+Sesión: practice
+Fase detectada: qualy_simulation
+Vueltas totales: 18
+Setup: 52f4b3abe0cd (TFA01-TSUKUBA-Q)
+
+TIEMPOS:
+  Mejor vuelta: 54.545s
+  Promedio: 87.407s
+  Muestras válidas: 18
+
+COMBUSTIBLE:
+  Consumo promedio: 0.838 L/vuelta
+  Muestras: 13
+
+CONDICIONES (inicio → fin):
+  Aire: 15°C → 15°C
+  Asfalto: 18°C → 18°C
+
+ITERACIONES SETUP COACH:
+  1. auto_poor_traction -> up DIFF_POWER (40 clic), resultado: worse.
+     motivo: mejor tracción en salida
+  2. auto_understeer_entry -> up WING_1 (1 clic), resultado: pending.
+     motivo: más apoyo delantero en entrada
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+16    253.558s   0.88L      52f4b3abe0cd
+17    55.171s    0.84L      52f4b3abe0cd
+18    54.982s    0.85L      52f4b3abe0cd
+19    54.919s    0.85L      52f4b3abe0cd
+20    55.972s    0.87L      52f4b3abe0cd
+21    65.993s    0.70L      52f4b3abe0cd
+22    118.465s   —          52f4b3abe0cd
+23    55.207s    0.90L      52f4b3abe0cd
+24    54.545s    0.88L      52f4b3abe0cd
+25    58.521s    0.84L      52f4b3abe0cd
+26    133.276s   —          52f4b3abe0cd
+27    61.669s    0.91L      52f4b3abe0cd
+28    55.135s    0.86L      52f4b3abe0cd
+29    72.681s    0.65L      52f4b3abe0cd
+30    162.148s   —          52f4b3abe0cd
+31    55.130s    0.86L      52f4b3abe0cd
+32    89.615s    —          52f4b3abe0cd
+33    116.332s   —          52f4b3abe0cd
+
+================================================================================

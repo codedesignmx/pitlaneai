@@ -1,0 +1,65 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-21 19:00:56
+Track: ddm_gts_tsukuba
+Vehículo: tatuusfa1
+Sesión: practice
+Fase detectada: qualy_simulation
+Vueltas totales: 15
+Setup: 31a82f0144aa (TFA01-TSUKUBA-Q)
+
+TIEMPOS:
+  Mejor vuelta: 54.945s
+  Promedio: 84.513s
+  Muestras válidas: 15
+
+COMBUSTIBLE:
+  Consumo promedio: 0.807 L/vuelta
+  Muestras: 13
+
+CONDICIONES (inicio → fin):
+  Aire: 15°C → 15°C
+  Asfalto: 18°C → 18°C
+
+SETUPS TESTEADOS:
+  31a82f0144aa: 5 vueltas
+  510f37ee8210: 10 vueltas
+
+ITERACIONES SETUP COACH:
+  1. auto_poor_traction -> up DIFF_POWER (40 clic), resultado: better.
+     motivo: mejor tracción en salida
+  2. auto_braking_instability -> up FRONT_BIAS (1 clic), resultado: worse.
+     motivo: evitar inestabilidad en fase de frenada
+  3. auto_understeer_entry -> up WING_1 (1 clic), resultado: same.
+     motivo: más apoyo delantero en entrada
+  4. auto_poor_traction -> up DIFF_POWER (40 clic), resultado: worse.
+     motivo: mejor tracción en salida
+  5. auto_oversteer_mid -> up WING_2 (1 clic), resultado: same.
+     motivo: más estabilidad trasera en curva
+  6. auto_understeer_mid -> down ARB_FRONT (1 clic), resultado: better.
+     motivo: más rotación en mitad de curva
+  7. auto_understeer_exit -> down DIFF_POWER (40 clic), resultado: better.
+     motivo: mejor rotación al abrir gas
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+1     228.012s   0.87L      510f37ee8210
+2     56.727s    0.79L      510f37ee8210
+3     56.213s    0.78L      510f37ee8210
+4     55.748s    0.82L      510f37ee8210
+5     55.748s    0.68L      510f37ee8210
+6     172.380s   —          510f37ee8210
+7     56.079s    0.86L      510f37ee8210
+8     55.138s    0.85L      510f37ee8210
+9     56.120s    0.85L      510f37ee8210
+10    63.920s    0.72L      510f37ee8210
+11    179.282s   —          31a82f0144aa
+12    54.997s    0.87L      31a82f0144aa
+13    55.149s    0.86L      31a82f0144aa
+14    54.945s    0.86L      31a82f0144aa
+15    67.243s    0.69L      31a82f0144aa
+
+================================================================================

@@ -1,0 +1,128 @@
+{
+  "timestamp": "2026-04-19T16:44:52.857608",
+  "session_type": "practice",
+  "track": "ddm_gts_tsukuba",
+  "session_stamp": "20260419_163310",
+  "rivals": [
+    {
+      "name": "Dylan Oc",
+      "best_lap_seconds": 54.489,
+      "seen_samples": 76,
+      "avg_position": 1.4342105263157894,
+      "last_position": 1,
+      "improvements": 3,
+      "ahead_samples": 76,
+      "behind_samples": 0
+    },
+    {
+      "name": "Luis Miguel Reyes",
+      "best_lap_seconds": 64.502,
+      "seen_samples": 1,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 1,
+      "behind_samples": 0
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 56.061,
+      "seen_samples": 77,
+      "avg_position": 3.5974025974025974,
+      "last_position": 2,
+      "improvements": 2,
+      "ahead_samples": 48,
+      "behind_samples": 0
+    },
+    {
+      "name": "Nicolás Crespo",
+      "best_lap_seconds": 53.838,
+      "seen_samples": 33,
+      "avg_position": 5.606060606060606,
+      "last_position": 3,
+      "improvements": 2,
+      "ahead_samples": 12,
+      "behind_samples": 17
+    },
+    {
+      "name": "nacho",
+      "best_lap_seconds": 54.554,
+      "seen_samples": 76,
+      "avg_position": 2.1184210526315788,
+      "last_position": 4,
+      "improvements": 2,
+      "ahead_samples": 76,
+      "behind_samples": 0
+    },
+    {
+      "name": "NZGoldenTree",
+      "best_lap_seconds": 92.272,
+      "seen_samples": 1,
+      "avg_position": 4.0,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 0
+    },
+    {
+      "name": "Chechu Sanchez",
+      "best_lap_seconds": 53.813,
+      "seen_samples": 77,
+      "avg_position": 3.8051948051948052,
+      "last_position": 5,
+      "improvements": 2,
+      "ahead_samples": 77,
+      "behind_samples": 0
+    },
+    {
+      "name": "Steven Dollimore",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 5.0,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "atlantic_f",
+      "best_lap_seconds": 57.613,
+      "seen_samples": 61,
+      "avg_position": 5.934426229508197,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 4,
+      "behind_samples": 41
+    },
+    {
+      "name": "JarodK8",
+      "best_lap_seconds": null,
+      "seen_samples": 1,
+      "avg_position": 6.0,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 1
+    },
+    {
+      "name": "Luciano Falese",
+      "best_lap_seconds": null,
+      "seen_samples": 76,
+      "avg_position": 4.657894736842105,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 29,
+      "behind_samples": 20
+    },
+    {
+      "name": "JavirAR",
+      "best_lap_seconds": null,
+      "seen_samples": 15,
+      "avg_position": 8.0,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 15
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-04-19T16:52:55.716056",
+  "session_type": "practice",
+  "track": "ddm_gts_tsukuba",
+  "session_stamp": "20260419_164514",
+  "rivals": [
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 56.037,
+      "seen_samples": 58,
+      "avg_position": 2.0,
+      "last_position": 1,
+      "improvements": 1,
+      "ahead_samples": 58,
+      "behind_samples": 0
+    },
+    {
+      "name": "Dylan Oc",
+      "best_lap_seconds": 54.489,
+      "seen_samples": 58,
+      "avg_position": 1.1896551724137931,
+      "last_position": 2,
+      "improvements": 0,
+      "ahead_samples": 58,
+      "behind_samples": 0
+    },
+    {
+      "name": "Nicolás Crespo",
+      "best_lap_seconds": 53.838,
+      "seen_samples": 58,
+      "avg_position": 2.810344827586207,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 58,
+      "behind_samples": 0
+    },
+    {
+      "name": "atlantic_f",
+      "best_lap_seconds": 56.499,
+      "seen_samples": 58,
+      "avg_position": 4.931034482758621,
+      "last_position": 4,
+      "improvements": 2,
+      "ahead_samples": 41,
+      "behind_samples": 0
+    },
+    {
+      "name": "nacho",
+      "best_lap_seconds": 54.554,
+      "seen_samples": 58,
+      "avg_position": 4.362068965517241,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 58,
+      "behind_samples": 0
+    },
+    {
+      "name": "JavirAR",
+      "best_lap_seconds": 69.97,
+      "seen_samples": 58,
+      "avg_position": 7.086206896551724,
+      "last_position": 6,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 46
+    },
+    {
+      "name": "Chechu Sanchez",
+      "best_lap_seconds": 53.813,
+      "seen_samples": 58,
+      "avg_position": 5.913793103448276,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 17,
+      "behind_samples": 12
+    },
+    {
+      "name": "Luciano Falese",
+      "best_lap_seconds": null,
+      "seen_samples": 58,
+      "avg_position": 7.706896551724138,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 58
+    },
+    {
+      "name": "Darian",
+      "best_lap_seconds": null,
+      "seen_samples": 16,
+      "avg_position": 9.0,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 16
+    },
+    {
+      "name": "YmaJ",
+      "best_lap_seconds": null,
+      "seen_samples": 2,
+      "avg_position": 10.0,
+      "last_position": 10,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 2
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-25 13:17:14
+Track: ddm_gts_tsukuba
+Vehículo: tatuusfa1
+Sesión: practice
+Fase detectada: setup_test
+Vueltas totales: 6
+Setup: 3235cee212a3 (TFA01-TSUKUBA-Q)
+
+TIEMPOS:
+  Mejor vuelta: 54.367s
+  Promedio: 79.831s
+  Muestras válidas: 6
+
+COMBUSTIBLE:
+  Consumo promedio: 0.855 L/vuelta
+  Muestras: 4
+
+CONDICIONES (inicio → fin):
+  Aire: 15°C → 15°C
+  Asfalto: 18°C → 18°C
+
+SETUPS TESTEADOS:
+  3235cee212a3: 2 vueltas
+  4566435f5b82: 4 vueltas
+
+ITERACIONES SETUP COACH:
+  1. auto_poor_traction -> up DIFF_POWER (40 clic), resultado: worse.
+     motivo: mejor tracción en salida
+  2. auto_understeer_entry -> up WING_1 (1 clic), resultado: pending.
+     motivo: más apoyo delantero en entrada
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+1     106.453s   —          4566435f5b82
+2     55.625s    0.84L      4566435f5b82
+3     55.109s    0.86L      4566435f5b82
+4     54.367s    0.85L      4566435f5b82
+5     151.890s   —          3235cee212a3
+6     55.543s    0.87L      3235cee212a3
+
+================================================================================

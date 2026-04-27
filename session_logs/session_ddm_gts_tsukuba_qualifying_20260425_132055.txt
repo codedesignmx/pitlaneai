@@ -1,0 +1,40 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-25 13:32:06
+Track: ddm_gts_tsukuba
+Vehículo: tatuusfa1
+Sesión: qualifying
+Fase detectada: qualy_simulation
+Vueltas totales: 10
+Setup: 3235cee212a3 (TFA01-TSUKUBA-Q)
+
+TIEMPOS:
+  Mejor vuelta: 54.906s
+  Promedio: 65.995s
+  Muestras válidas: 10
+
+COMBUSTIBLE:
+  Consumo promedio: 4.404 L/vuelta
+  Muestras: 8
+
+CONDICIONES (inicio → fin):
+  Aire: 15°C → 15°C
+  Asfalto: 18°C → 18°C
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+7     82.302s    29.17L     3235cee212a3
+8     55.264s    0.85L      3235cee212a3
+9     55.869s    0.85L      3235cee212a3
+10    55.250s    0.87L      3235cee212a3
+11    62.651s    0.72L      3235cee212a3
+12    89.737s    —          3235cee212a3
+13    54.906s    0.91L      3235cee212a3
+14    55.071s    0.91L      3235cee212a3
+15    74.452s    —          3235cee212a3
+16    74.452s    0.94L      3235cee212a3
+
+================================================================================

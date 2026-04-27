@@ -1,0 +1,158 @@
+{
+  "timestamp": "2026-04-25T13:32:06.801758",
+  "session_type": "qualifying",
+  "track": "ddm_gts_tsukuba",
+  "session_stamp": "20260425_132055",
+  "rivals": [
+    {
+      "name": "#13 | Michael York",
+      "best_lap_seconds": 53.898,
+      "seen_samples": 83,
+      "avg_position": 6.9879518072289155,
+      "last_position": 1,
+      "improvements": 4,
+      "ahead_samples": 41,
+      "behind_samples": 28
+    },
+    {
+      "name": "#6 | Maximo Lorenzone",
+      "best_lap_seconds": 52.568,
+      "seen_samples": 83,
+      "avg_position": 1.7108433734939759,
+      "last_position": 2,
+      "improvements": 5,
+      "ahead_samples": 79,
+      "behind_samples": 4
+    },
+    {
+      "name": "#10 | Lucio Zampella",
+      "best_lap_seconds": 52.752,
+      "seen_samples": 83,
+      "avg_position": 5.180722891566265,
+      "last_position": 3,
+      "improvements": 2,
+      "ahead_samples": 68,
+      "behind_samples": 10
+    },
+    {
+      "name": "#5 | Marco Cabanas",
+      "best_lap_seconds": 54.851,
+      "seen_samples": 83,
+      "avg_position": 5.36144578313253,
+      "last_position": 4,
+      "improvements": 4,
+      "ahead_samples": 71,
+      "behind_samples": 8
+    },
+    {
+      "name": "#4 | Mykyta Rybalka",
+      "best_lap_seconds": 53.265,
+      "seen_samples": 83,
+      "avg_position": 4.951807228915663,
+      "last_position": 5,
+      "improvements": 2,
+      "ahead_samples": 74,
+      "behind_samples": 6
+    },
+    {
+      "name": "#1 | Agustin Llopis",
+      "best_lap_seconds": 53.28,
+      "seen_samples": 83,
+      "avg_position": 5.795180722891566,
+      "last_position": 6,
+      "improvements": 2,
+      "ahead_samples": 65,
+      "behind_samples": 16
+    },
+    {
+      "name": "#9 | David Lago",
+      "best_lap_seconds": 53.773,
+      "seen_samples": 83,
+      "avg_position": 2.6144578313253013,
+      "last_position": 7,
+      "improvements": 3,
+      "ahead_samples": 79,
+      "behind_samples": 2
+    },
+    {
+      "name": "#11 | Andreas Borner",
+      "best_lap_seconds": 54.814,
+      "seen_samples": 83,
+      "avg_position": 8.385542168674698,
+      "last_position": 8,
+      "improvements": 2,
+      "ahead_samples": 56,
+      "behind_samples": 21
+    },
+    {
+      "name": "#12 | Federico Battimo",
+      "best_lap_seconds": 53.097,
+      "seen_samples": 83,
+      "avg_position": 6.0120481927710845,
+      "last_position": 9,
+      "improvements": 2,
+      "ahead_samples": 74,
+      "behind_samples": 4
+    },
+    {
+      "name": "#15 | adrian bjornebo",
+      "best_lap_seconds": 56.016,
+      "seen_samples": 83,
+      "avg_position": 13.301204819277109,
+      "last_position": 10,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 66
+    },
+    {
+      "name": "#14 | Parzi Choy",
+      "best_lap_seconds": 53.806,
+      "seen_samples": 83,
+      "avg_position": 9.831325301204819,
+      "last_position": 11,
+      "improvements": 1,
+      "ahead_samples": 4,
+      "behind_samples": 54
+    },
+    {
+      "name": "#2 | IVAN ALARCON",
+      "best_lap_seconds": 57.077,
+      "seen_samples": 83,
+      "avg_position": 10.457831325301205,
+      "last_position": 12,
+      "improvements": 0,
+      "ahead_samples": 2,
+      "behind_samples": 81
+    },
+    {
+      "name": "#3 | Petrus MrGee",
+      "best_lap_seconds": null,
+      "seen_samples": 83,
+      "avg_position": 12.120481927710843,
+      "last_position": 13,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 83
+    },
+    {
+      "name": "#7 | Kauan Fiabane",
+      "best_lap_seconds": null,
+      "seen_samples": 83,
+      "avg_position": 13.144578313253012,
+      "last_position": 14,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 83
+    },
+    {
+      "name": "#8 | Kymani Cummins",
+      "best_lap_seconds": null,
+      "seen_samples": 83,
+      "avg_position": 14.144578313253012,
+      "last_position": 15,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 83
+    }
+  ]
+}

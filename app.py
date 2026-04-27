@@ -328,6 +328,32 @@ def run() -> None:
                         print(f"[SPEAK] {msg}")
                         queue.push(msg)
 
+                # Hito de objetivos: anunciar una sola vez cuando se calibra consumo.
+                obj_set = state.active_objectives
+                if obj_set is not None:
+                    obj_set.evaluate(state, setup_coach=setup_coach)
+                    fuel_obj = next((o for o in obj_set.objectives if o.id == "fuel_calibration"), None)
+                    if (
+                        fuel_obj is not None
+                        and fuel_obj.met is True
+                        and "fuel_calibration" not in state.objective_milestones_announced
+                    ):
+                        pending = sorted(
+                            [o for o in obj_set.objectives if o.met is False],
+                            key=lambda o: o.priority,
+                        )
+                        if pending:
+                            next_step = f"Siguiente foco: {pending[0].target_label}."
+                        else:
+                            next_step = "Siguiente foco: ritmo y consistencia."
+
+                        milestone_msg = (
+                            f"Objetivo cumplido. {fuel_obj.feedback}. {next_step}"
+                        )
+                        print(f"[SPEAK] {milestone_msg}")
+                        queue.push(milestone_msg)
+                        state.objective_milestones_announced.add("fuel_calibration")
+
             now = time.time()
             current_session = snapshot.session_type
             if snapshot.track_name and snapshot.track_name != "unknown":
@@ -376,6 +402,7 @@ def run() -> None:
                 state.session_total_seconds = 0.0
                 state.active_objectives = None
                 state.objectives_intro_announced = False
+                state.objective_milestones_announced.clear()
                 state.session_best_standings = {}
                 state.update_live_weather()
 

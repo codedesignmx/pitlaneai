@@ -47,6 +47,7 @@ class SessionState:
     _track_sections: list = field(default_factory=list)
     active_objectives: SessionObjectiveSet | None = None
     objectives_intro_announced: bool = False
+    objective_milestones_announced: set[str] = field(default_factory=set)
     session_total_seconds: float = 0.0
     session_lap_start_index: int = 0
     microsector_count: int = 20

@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-04-21T19:00:56.041126",
+  "session_type": "practice",
+  "track": "ddm_gts_tsukuba",
+  "session_stamp": "20260421_183908",
+  "rivals": [
+    {
+      "name": "Kuma",
+      "best_lap_seconds": 53.653,
+      "seen_samples": 162,
+      "avg_position": 1.0,
+      "last_position": 1,
+      "improvements": 4,
+      "ahead_samples": 162,
+      "behind_samples": 0
+    },
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 54.945,
+      "seen_samples": 162,
+      "avg_position": 2.0,
+      "last_position": 2,
+      "improvements": 6,
+      "ahead_samples": 25,
+      "behind_samples": 0
+    },
+    {
+      "name": "Max Verstappen",
+      "best_lap_seconds": 54.036,
+      "seen_samples": 61,
+      "avg_position": 3.0,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 36
+    },
+    {
+      "name": "GORDO Q MUESTra los PEZONES",
+      "best_lap_seconds": null,
+      "seen_samples": 42,
+      "avg_position": 4.071428571428571,
+      "last_position": 4,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 42
+    },
+    {
+      "name": "Alvaro Briso",
+      "best_lap_seconds": null,
+      "seen_samples": 7,
+      "avg_position": 4.571428571428571,
+      "last_position": 5,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 7
+    }
+  ]
+}

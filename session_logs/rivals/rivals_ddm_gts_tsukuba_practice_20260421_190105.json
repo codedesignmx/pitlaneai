@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-04-21T19:26:05.027690",
+  "session_type": "practice",
+  "track": "ddm_gts_tsukuba",
+  "session_stamp": "20260421_190105",
+  "rivals": [
+    {
+      "name": "Marco Cabañas",
+      "best_lap_seconds": 54.545,
+      "seen_samples": 185,
+      "avg_position": 1.162162162162162,
+      "last_position": 1,
+      "improvements": 2,
+      "ahead_samples": 185,
+      "behind_samples": 0
+    },
+    {
+      "name": "Max Verstappen",
+      "best_lap_seconds": 53.104,
+      "seen_samples": 185,
+      "avg_position": 2.745945945945946,
+      "last_position": 2,
+      "improvements": 3,
+      "ahead_samples": 168,
+      "behind_samples": 0
+    },
+    {
+      "name": "Kuma",
+      "best_lap_seconds": 53.653,
+      "seen_samples": 185,
+      "avg_position": 2.091891891891892,
+      "last_position": 3,
+      "improvements": 0,
+      "ahead_samples": 185,
+      "behind_samples": 0
+    },
+    {
+      "name": "Andrew Mulligan",
+      "best_lap_seconds": 53.329,
+      "seen_samples": 122,
+      "avg_position": 4.983606557377049,
+      "last_position": 4,
+      "improvements": 3,
+      "ahead_samples": 78,
+      "behind_samples": 40
+    },
+    {
+      "name": "GORDO Q MUESTra los PEZONES",
+      "best_lap_seconds": 54.142,
+      "seen_samples": 185,
+      "avg_position": 4.8108108108108105,
+      "last_position": 5,
+      "improvements": 2,
+      "ahead_samples": 0,
+      "behind_samples": 69
+    },
+    {
+      "name": "Alvaro Briso",
+      "best_lap_seconds": 55.362,
+      "seen_samples": 185,
+      "avg_position": 5.054054054054054,
+      "last_position": 6,
+      "improvements": 1,
+      "ahead_samples": 20,
+      "behind_samples": 117
+    },
+    {
+      "name": "Jose Noronha",
+      "best_lap_seconds": 55.131,
+      "seen_samples": 102,
+      "avg_position": 7.411764705882353,
+      "last_position": 7,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 102
+    },
+    {
+      "name": "Cristian",
+      "best_lap_seconds": 56.488,
+      "seen_samples": 158,
+      "avg_position": 7.2974683544303796,
+      "last_position": 8,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 158
+    },
+    {
+      "name": "atlantic_f",
+      "best_lap_seconds": 56.196,
+      "seen_samples": 140,
+      "avg_position": 8.178571428571429,
+      "last_position": 9,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 140
+    },
+    {
+      "name": "Joaquin Briso",
+      "best_lap_seconds": null,
+      "seen_samples": 60,
+      "avg_position": 10.0,
+      "last_position": 10,
+      "improvements": 0,
+      "ahead_samples": 0,
+      "behind_samples": 60
+    }
+  ]
+}

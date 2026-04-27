@@ -1,0 +1,50 @@
+================================================================================
+PITRADIO SESSION REPORT
+================================================================================
+
+Fecha: 2026-04-25 14:02:31
+Track: ddm_gts_tsukuba
+Vehículo: tatuusfa1
+Sesión: race
+Fase detectada: long_run
+Vueltas totales: 28
+Setup: 01223fc1e8bb (TFA01-TSUKUBA-R)
+
+TIEMPOS:
+  Mejor vuelta: 54.877s
+  Promedio: 56.085s
+  Muestras válidas: 28
+
+COMBUSTIBLE:
+  Consumo promedio: 0.887 L/vuelta
+  Muestras: 27
+
+CONDICIONES (inicio → fin):
+  Aire: 15°C → 15°C
+  Asfalto: 19°C → 19°C
+
+ÚLTIMAS VUELTAS (detalle):
+Lap   Tiempo     Fuel Used  Setup       
+----------------------------------------
+25    54.934s    0.88L      01223fc1e8bb
+26    54.888s    0.90L      01223fc1e8bb
+27    55.853s    0.87L      01223fc1e8bb
+28    55.853s    0.90L      01223fc1e8bb
+29    66.014s    0.91L      01223fc1e8bb
+30    55.460s    0.86L      01223fc1e8bb
+31    55.460s    0.87L      01223fc1e8bb
+32    55.398s    0.89L      01223fc1e8bb
+33    55.647s    0.85L      01223fc1e8bb
+34    55.804s    0.86L      01223fc1e8bb
+35    55.914s    0.92L      01223fc1e8bb
+36    54.877s    0.92L      01223fc1e8bb
+37    55.409s    0.89L      01223fc1e8bb
+38    55.933s    0.88L      01223fc1e8bb
+39    55.468s    0.90L      01223fc1e8bb
+40    55.193s    0.88L      01223fc1e8bb
+41    55.303s    0.86L      01223fc1e8bb
+42    55.382s    0.88L      01223fc1e8bb
+43    55.100s    0.88L      01223fc1e8bb
+44    56.788s    0.85L      01223fc1e8bb
+
+================================================================================

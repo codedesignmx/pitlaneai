@@ -1,0 +1,130 @@
+{
+  "timestamp": "2026-04-25T13:17:14.252227",
+  "track": "ddm_gts_tsukuba",
+  "vehicle": "tatuusfa1",
+  "session_type": "practice",
+  "phase": "setup_test",
+  "setup_notes": "3235cee212a3 (TFA01-TSUKUBA-Q)",
+  "setup_iterations": [
+    {
+      "timestamp": "2026-04-21T19:07:32.383955",
+      "setup_id": "52f4b3abe0cd",
+      "setup_label": "TFA01-TSUKUBA-Q",
+      "issue": "auto_poor_traction",
+      "parameter": "DIFF_POWER",
+      "direction": "up",
+      "step": 40.0,
+      "current_value": 10.0,
+      "target_value": 50.0,
+      "range": [
+        10.0,
+        90.0
+      ],
+      "reason": "mejor tracci\u00f3n en salida",
+      "outcome": "worse"
+    },
+    {
+      "timestamp": "2026-04-21T19:19:30.873854",
+      "setup_id": "52f4b3abe0cd",
+      "setup_label": "TFA01-TSUKUBA-Q",
+      "issue": "auto_understeer_entry",
+      "parameter": "WING_1",
+      "direction": "up",
+      "step": 1.0,
+      "current_value": 6.0,
+      "target_value": 7.0,
+      "range": [
+        0.0,
+        10.0
+      ],
+      "reason": "m\u00e1s apoyo delantero en entrada",
+      "outcome": "pending"
+    }
+  ],
+  "snapshots": [
+    {
+      "lap_number": 1,
+      "lap_time": 106.453,
+      "fuel_used": null,
+      "fuel_remaining": 4.133889198303223,
+      "track_name": "ddm_gts_tsukuba",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "4566435f5b82",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-25T13:10:47.841475"
+    },
+    {
+      "lap_number": 2,
+      "lap_time": 55.625,
+      "fuel_used": 0.842353343963623,
+      "fuel_remaining": 3.2915358543395996,
+      "track_name": "ddm_gts_tsukuba",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "4566435f5b82",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-25T13:11:43.585766"
+    },
+    {
+      "lap_number": 3,
+      "lap_time": 55.109,
+      "fuel_used": 0.8618879318237305,
+      "fuel_remaining": 2.429647922515869,
+      "track_name": "ddm_gts_tsukuba",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "4566435f5b82",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-25T13:12:38.700265"
+    },
+    {
+      "lap_number": 4,
+      "lap_time": 54.367,
+      "fuel_used": 0.8471598625183105,
+      "fuel_remaining": 1.5824880599975586,
+      "track_name": "ddm_gts_tsukuba",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "4566435f5b82",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-25T13:13:33.081038"
+    },
+    {
+      "lap_number": 5,
+      "lap_time": 151.89,
+      "fuel_used": null,
+      "fuel_remaining": 34.11905288696289,
+      "track_name": "ddm_gts_tsukuba",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "3235cee212a3",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-25T13:16:04.890508"
+    },
+    {
+      "lap_number": 6,
+      "lap_time": 55.543,
+      "fuel_used": 0.8666229248046875,
+      "fuel_remaining": 33.2524299621582,
+      "track_name": "ddm_gts_tsukuba",
+      "vehicle_name": "tatuusfa1",
+      "session_type": "practice",
+      "setup_hash": "3235cee212a3",
+      "air_temp": 15.0,
+      "asphalt_temp": 18.0,
+      "track_grip": null,
+      "timestamp_iso": "2026-04-25T13:17:00.367454"
+    }
+  ]
+}
